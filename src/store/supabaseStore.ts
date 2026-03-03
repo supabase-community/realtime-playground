@@ -8,9 +8,9 @@ import {
 import { useRealtimeStore } from "./realtimeStore";
 
 interface SupabaseStore {
-  client: SupabaseClient | null;
-  userId: string | null;
-  email: string;
+  client?: SupabaseClient;
+  userId?: string;
+  email?: string;
 
   init: () => void;
   login: (email: string, password: string) => Promise<void>;
@@ -18,10 +18,6 @@ interface SupabaseStore {
 }
 
 export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
-  client: null,
-  userId: null,
-  email: "",
-
   init() {
     set({
       client: createClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY),
@@ -55,7 +51,7 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
     if (!client) return;
 
     await client.auth.signOut();
-    set({ userId: null, email: "" });
+    set({ userId: undefined, email: undefined });
     useRealtimeStore.getState().setAuth(NEXT_PUBLIC_SUPABASE_KEY);
     useRealtimeStore.getState().syncChannels();
   },

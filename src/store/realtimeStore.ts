@@ -6,10 +6,9 @@ import type { RealtimeClientFormValues } from "@/schemas/realtimeClient";
 
 export type SocketStatus = "closed" | "connecting" | "open" | "closing";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Logger = (kind: string, msg: string, data: any) => void;
 
-interface RealtimeStore {
+export type RealtimeStore = {
   client: RealtimeClient | null;
   socketConfig: RealtimeClientFormValues | null;
   status: SocketStatus;
@@ -32,7 +31,7 @@ interface RealtimeStore {
   untrackPresence: (name: string) => void;
 
   setAuth: (token: string) => void;
-}
+};
 
 export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   client: null,
@@ -63,7 +62,12 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
 
   destroy() {
     get().client?.disconnect();
-    set({ client: null, socketConfig: null, status: "closed", channels: new Map() });
+    set({
+      client: null,
+      socketConfig: null,
+      status: "closed",
+      channels: new Map(),
+    });
   },
 
   syncStatus() {

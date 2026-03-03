@@ -2,24 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from "@supabase/supabase-js";
 import { NEXT_PUBLIC_TEST_USER_EMAIL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ChannelForm } from "@/components/forms/ChannelForm";
 import { RealtimeClientForm } from "@/components/forms/RealtimeClientForm";
 import { ActiveChannels } from "@/components/channels/ActiveChannels";
-import { type ChannelFormValues } from "@/schemas/channel";
+import {
+  PostgresListenerValues,
+  type ChannelFormValues,
+} from "@/schemas/channel";
 import { type RealtimeClientFormValues } from "@/schemas/realtimeClient";
 import { useBroadcastMessages } from "@/hooks/useBroadcastMessages";
 import { useLogMessages } from "@/hooks/useLogMessages";
@@ -33,28 +28,16 @@ import {
 } from "@/components/tables";
 import { useRealtimeStore } from "@/store/realtimeStore";
 import { useSupabaseStore } from "@/store/supabaseStore";
-
-interface PgForm {
-  schema: string;
-  table: string;
-  event: string;
-}
+import { PostgresListenerForm } from "@/components/forms/PostgresListenerForm";
 
 export default function Home() {
   const status = useRealtimeStore((s) => s.status);
-  const channels = useRealtimeStore((s) => s.channels);
   const socketConfig = useRealtimeStore((s) => s.socketConfig);
 
   const { userId, email: userEmail, login, logout } = useSupabaseStore();
 
   const [loginEmail, setLoginEmail] = useState(NEXT_PUBLIC_TEST_USER_EMAIL);
   const [loginPassword, setLoginPassword] = useState("");
-
-  const [pgForm, setPgForm] = useState<PgForm>({
-    schema: "public",
-    table: "",
-    event: "*",
-  });
 
   const [presencePayload, setPresencePayload] = useState<
     Record<string, unknown>
@@ -118,7 +101,7 @@ export default function Home() {
 
   const handleLogout = async () => {
     await logout();
-    setLoginEmail("");
+    setLoginEmail(NEXT_PUBLIC_TEST_USER_EMAIL);
     setLoginPassword("");
   };
 
@@ -140,15 +123,15 @@ export default function Home() {
     useRealtimeStore.getState().syncChannels();
   };
 
-  const addPostgresChangesListener = (
-    name: string,
-    event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
-    schema: string,
-    table: string,
-  ) => {
-    const ch = useRealtimeStore.getState().channels.get(name);
+  const addPostgresChangesListener = ({
+    channel,
+    event,
+    schema,
+    table,
+  }: PostgresListenerValues) => {
+    const ch = useRealtimeStore.getState().channels.get(channel);
     if (!ch) return;
-    registerPostgresListener(ch, name, event, schema, table);
+    registerPostgresListener(ch, channel, event, schema, table);
     useRealtimeStore.getState().syncChannels();
   };
 
@@ -257,72 +240,7 @@ export default function Home() {
                 <CardTitle className="text-base">Postgres Changes</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="space-y-1">
-                  <Label>Schema</Label>
-                  <Input
-                    placeholder="public"
-                    value={pgForm.schema}
-                    onChange={(e) =>
-                      setPgForm((prev) => ({ ...prev, schema: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Table Name *</Label>
-                  <Input
-                    placeholder="e.g., messages, users, posts"
-                    value={pgForm.table}
-                    onChange={(e) =>
-                      setPgForm((prev) => ({ ...prev, table: e.target.value }))
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label>Event Type</Label>
-                  <Select
-                    value={pgForm.event}
-                    onValueChange={(val) =>
-                      setPgForm((prev) => ({ ...prev, event: val }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="*">All Events (*)</SelectItem>
-                      <SelectItem value="INSERT">INSERT only</SelectItem>
-                      <SelectItem value="UPDATE">UPDATE only</SelectItem>
-                      <SelectItem value="DELETE">DELETE only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1 max-h-32 overflow-y-auto">
-                  {channels.size === 0 ? (
-                    <div className="text-center py-3 border border-dashed rounded-md">
-                      <p className="text-muted-foreground text-xs">
-                        No channels
-                      </p>
-                    </div>
-                  ) : (
-                    Array.from(channels.entries()).map(([key]) => (
-                      <Button
-                        key={key}
-                        className="w-full justify-start text-xs"
-                        variant="secondary"
-                        onClick={() =>
-                          addPostgresChangesListener(
-                            key,
-                            pgForm.event as REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
-                            pgForm.schema,
-                            pgForm.table,
-                          )
-                        }
-                      >
-                        Postgres Changes to: {key}
-                      </Button>
-                    ))
-                  )}
-                </div>
+                <PostgresListenerForm onSubmit={addPostgresChangesListener} />
               </CardContent>
             </Card>
 

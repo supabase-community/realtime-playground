@@ -28,7 +28,14 @@ export type PostgresChange = RealtimePostgresChangesPayload<
 // Presence
 // ---------------------------------------------------------------------------
 
-/** Outer key = channel name; inner key = presence key; value = presence objects */
+/**
+ * Example:
+ * {
+ *   "my-channel": {
+ *     "user-123": [{ "key": "value" }]
+ *   }
+ * }
+ */
 export type PresenceByChannel = Record<string, Record<string, unknown[]>>;
 
 // ---------------------------------------------------------------------------

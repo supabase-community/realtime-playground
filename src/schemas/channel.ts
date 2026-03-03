@@ -1,8 +1,7 @@
+import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from "@supabase/supabase-js";
 import { z } from "zod";
-import type { RealtimeChannelOptions } from "@supabase/supabase-js";
-
 // ---------------------------------------------------------------------------
-// Channel config schema — shape mirrors RealtimeChannelOptions['config']
+// Channel creation form schema
 // ---------------------------------------------------------------------------
 
 export const channelConfigSchema = z.object({
@@ -23,19 +22,36 @@ export const channelFormSchema = z.object({
 });
 
 export type ChannelFormValues = z.infer<typeof channelFormSchema>;
-export type ChannelConfig = z.infer<typeof channelConfigSchema>;
+export type ChannelConfigValues = z.infer<typeof channelConfigSchema>;
+
+// ---------------------------------------------------------------------------
+// Broadcast send form schema
+// ---------------------------------------------------------------------------
 
 export const broadcastSendSchema = z.object({
-  event: z.string().min(1, "Event is required"),
-  channel: z.string().min(1, "Select a channel"),
-  message: z.string(),
+  event: z.string().min(1, "Event is required").nonoptional(),
+  channel: z.string().min(1, "Select a channel").nonoptional(),
+  message: z.string().optional(),
 });
 
 export type BroadcastSendValues = z.infer<typeof broadcastSendSchema>;
 
-// Compile-time guarantee that our config is assignable to the supabase type
-type _Check = ChannelConfig extends RealtimeChannelOptions["config"]
-  ? true
-  : "ChannelConfig is not compatible with RealtimeChannelOptions['config']";
-const _assert: _Check = true;
-void _assert;
+// ---------------------------------------------------------------------------
+// Postgres listener schema
+// ---------------------------------------------------------------------------
+
+export const postgresListenerSchema = z.object({
+  schema: z
+    .string()
+    .min(1, "Schema is required")
+    .default("public")
+    .nonoptional(),
+  table: z.string().min(1, "Table is required").nonoptional(),
+  event: z
+    .enum(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT)
+    .default(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL)
+    .nonoptional(),
+  channel: z.string().nonoptional(),
+});
+
+export type PostgresListenerValues = z.infer<typeof postgresListenerSchema>;
