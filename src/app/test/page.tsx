@@ -1,7 +1,7 @@
 "use client"
 
 import { runTest, Test, testCases } from "@/lib/test";
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronRight, Rocket } from "lucide-react";
@@ -42,7 +42,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     handleRun: () => handleRun()
-  }), [test])
+  }))
 
   return (
     <div className="flex flex-col gap-1 py-2 border-b border-border last:border-0">
@@ -69,6 +69,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
     </div>
   );
 })
+TestCase.displayName = "TestCase"
 
 type TestSectionProps = {
   name: string;
@@ -114,6 +115,7 @@ const TestSection = forwardRef(({ name, tests }: TestSectionProps, ref) => {
     </Card>
   );
 });
+TestSection.displayName = "TestSection"
 
 export default function TestsPage() {
   const [state, setState] = useState("ready");
