@@ -26,19 +26,15 @@ import {
   vsnSchema,
   type RealtimeClientFormValues,
 } from "@/schemas/client";
-import {
-  NEXT_PUBLIC_REALTIME_URL,
-  NEXT_PUBLIC_SUPABASE_KEY,
-} from "@/lib/constants";
 
-interface Props {
+type Props = {
   onSubmit: (values: RealtimeClientFormValues) => void;
   onDelete: () => void;
   onConnect: () => void;
   onDisconnect: () => void;
   disabled?: boolean;
   status?: string;
-}
+};
 
 export function RealtimeClientForm({
   onSubmit,
@@ -50,14 +46,7 @@ export function RealtimeClientForm({
 }: Props) {
   const form = useForm<RealtimeClientFormValues>({
     resolver: zodResolver(realtimeClientSchema),
-    defaultValues: {
-      url: NEXT_PUBLIC_REALTIME_URL,
-      apiKey: NEXT_PUBLIC_SUPABASE_KEY,
-      worker: true,
-      vsn: "2.0.0",
-      timeout: "",
-      heartbeatIntervalMs: "",
-    },
+    defaultValues: realtimeClientSchema.parse({}),
   });
 
   return (

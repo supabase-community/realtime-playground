@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BroadcastSendForm } from "@/components/forms/BroadcastSendForm";
+import BroadcastSendForm from "@/components/forms/BroadcastSendForm";
 import type { BroadcastMessage } from "@/types/realtime";
 
 interface Props {
@@ -20,7 +20,7 @@ interface Props {
 export function BroadcastMessagesTable({ messages, onClear }: Props) {
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">Broadcast Messages</CardTitle>
           <div className="flex items-center gap-2">
@@ -38,10 +38,9 @@ export function BroadcastMessagesTable({ messages, onClear }: Props) {
             </Button>
           </div>
         </div>
+        <BroadcastSendForm />
       </CardHeader>
       <CardContent className="space-y-3">
-        <BroadcastSendForm />
-
         {messages.length === 0 ? (
           <p className="text-muted-foreground text-center py-4 text-xs">
             No broadcast messages yet

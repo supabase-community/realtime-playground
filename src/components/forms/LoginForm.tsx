@@ -12,6 +12,9 @@ type Props = {
 export default function LoginForm({ onSubmit }: Props) {
   const form = useForm({
     resolver: zodResolver(loginSchema),
+    defaultValues: loginSchema.parse({
+      password: "",
+    }),
   });
 
   const handleSubmit = form.handleSubmit(onSubmit);

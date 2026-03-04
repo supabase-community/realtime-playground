@@ -23,14 +23,9 @@ interface Props {
 export default function ChannelForm({ onSubmit }: Props) {
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
-    defaultValues: {
-      name: "",
-      config: {
-        private: false,
-        broadcast: { ack: true, self: true },
-        presence: { enabled: true, key: "" },
-      },
-    },
+    defaultValues: channelFormSchema.parse({
+      name: "test",
+    }),
   });
 
   const presenceEnabled = useWatch({
@@ -164,14 +159,6 @@ export default function ChannelForm({ onSubmit }: Props) {
                     )}
                   />
                 )}
-              </div>
-
-              {/* Postgres note */}
-              <div className="rounded-md border border-purple-600/30 bg-purple-950/20 p-3">
-                <p className="text-xs text-purple-300">
-                  Configure listeners after subscribing to the channel using the
-                  configuration section below.
-                </p>
               </div>
             </div>
 

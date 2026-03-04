@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { NEXT_PUBLIC_TEST_USER_EMAIL } from "../lib/constants";
+import {
+  NEXT_PUBLIC_REALTIME_URL,
+  NEXT_PUBLIC_SUPABASE_KEY,
+  NEXT_PUBLIC_TEST_USER_EMAIL,
+} from "../lib/constants";
 
 export const vsnSchema = z.enum(["1.0.0", "2.0.0"]);
 export type Vsn = z.infer<typeof vsnSchema>;
@@ -16,12 +20,20 @@ const positiveIntStr = z
   );
 
 export const realtimeClientSchema = z.object({
-  url: z.string().min(1, "URL is required"),
-  apiKey: z.string().min(1, "API key is required"),
-  worker: z.boolean(),
-  vsn: vsnSchema,
-  timeout: positiveIntStr,
-  heartbeatIntervalMs: positiveIntStr,
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .default(NEXT_PUBLIC_REALTIME_URL)
+    .nonoptional(),
+  apiKey: z
+    .string()
+    .min(1, "API key is required")
+    .default(NEXT_PUBLIC_SUPABASE_KEY)
+    .nonoptional(),
+  worker: z.boolean().default(true).nonoptional(),
+  vsn: vsnSchema.default("2.0.0").nonoptional(),
+  timeout: positiveIntStr.optional(),
+  heartbeatIntervalMs: positiveIntStr.optional(),
 });
 
 export type RealtimeClientFormValues = z.infer<typeof realtimeClientSchema>;
@@ -32,7 +44,7 @@ export const loginSchema = z.object({
     .min(1, "Email is required")
     .default(NEXT_PUBLIC_TEST_USER_EMAIL)
     .nonoptional(),
-  password: z.string().min(1, "Password is required").nonoptional(),
+  password: z.string().nonoptional(),
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;

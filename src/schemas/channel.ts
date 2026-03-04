@@ -5,20 +5,26 @@ import { z } from "zod";
 // ---------------------------------------------------------------------------
 
 export const channelConfigSchema = z.object({
-  private: z.boolean(),
+  private: z.boolean().nonoptional(),
   broadcast: z.object({
-    ack: z.boolean(),
-    self: z.boolean(),
+    ack: z.boolean().nonoptional(),
+    self: z.boolean().nonoptional(),
   }),
   presence: z.object({
-    enabled: z.boolean(),
+    enabled: z.boolean().nonoptional(),
     key: z.string().optional(),
   }),
 });
 
 export const channelFormSchema = z.object({
-  name: z.string().min(1, "Channel name is required"),
-  config: channelConfigSchema,
+  name: z.string().min(1, "Channel name is required").nonoptional(),
+  config: channelConfigSchema
+    .default({
+      private: false,
+      broadcast: { ack: true, self: true },
+      presence: { enabled: true },
+    })
+    .nonoptional(),
 });
 
 export type ChannelFormValues = z.infer<typeof channelFormSchema>;
@@ -29,7 +35,11 @@ export type ChannelConfigValues = z.infer<typeof channelConfigSchema>;
 // ---------------------------------------------------------------------------
 
 export const broadcastSendSchema = z.object({
-  event: z.string().min(1, "Event is required").nonoptional(),
+  event: z
+    .string()
+    .min(1, "Event is required")
+    .default("message")
+    .nonoptional(),
   channel: z.string().min(1, "Select a channel").nonoptional(),
   message: z.string().optional(),
 });
@@ -46,12 +56,12 @@ export const postgresListenerSchema = z.object({
     .min(1, "Schema is required")
     .default("public")
     .nonoptional(),
-  table: z.string().min(1, "Table is required").nonoptional(),
+  table: z.string().optional(),
   event: z
     .enum(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT)
     .default(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL)
     .nonoptional(),
-  channel: z.string().nonoptional(),
+  channel: z.string().min(1, "Select a channel").nonoptional(),
 });
 
 export type PostgresListenerValues = z.infer<typeof postgresListenerSchema>;

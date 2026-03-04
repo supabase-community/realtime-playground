@@ -27,13 +27,36 @@ export default function PostgresListenerForm({ onSubmit }: Props) {
   const channels = useRealtimeStore((s) => s.channels);
   const channelTopics = useMemo(() => Array.from(channels.keys()), [channels]);
 
+  if (channelTopics.length === 0) {
+    return (
+      <div className="px-4 p-2">
+        <p className="text-xs text-muted-foreground">No subscribed channels</p>
+      </div>
+    );
+  }
+
+  return (
+    <PostgresListenerFormInner
+      onSubmit={onSubmit}
+      channelTopics={channelTopics}
+    />
+  );
+}
+
+type PostgresListenerFormInnerProps = {
+  onSubmit: (values: PostgresListenerValues) => void;
+  channelTopics: string[];
+};
+
+function PostgresListenerFormInner({
+  onSubmit,
+  channelTopics,
+}: PostgresListenerFormInnerProps) {
   const form = useForm<PostgresListenerValues>({
     resolver: zodResolver(postgresListenerSchema),
-    defaultValues: {
-      schema: "public",
-      table: "*",
-      event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL,
-    },
+    defaultValues: postgresListenerSchema.parse({
+      channel: channelTopics[0],
+    }),
   });
 
   const selectedChannel = useWatch({ control: form.control, name: "channel" });
