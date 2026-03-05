@@ -11,11 +11,21 @@ export const metadata: Metadata = {
   description: "Explore Supabase Realtime features interactively",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className="dark">
       <body className={`${sans.variable} ${mono.variable} antialiased`}>
-        {children}
+        <div className="min-h-screen p-4 font-mono text-sm">
+          {" "}
+          <h1 className="text-2xl font-bold mb-6">
+            Realtime-js Interactive Example
+          </h1>
+          {children}
+        </div>
         <Toaster position="bottom-left" theme="dark" />
       </body>
     </html>
