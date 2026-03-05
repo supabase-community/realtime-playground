@@ -90,7 +90,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
       <div className="border-border flex flex-col gap-1 border-b py-2 last:border-0">
         <div className="flex items-center justify-between gap-2">
           <span className="text-foreground font-mono text-xs">{test.name}</span>
-          <div className="flex gap-2">
+          <div className="flex gap-4 items-center">
             {message && (
               <CollapsibleTrigger className="flex items-center gap-1 transition-opacity hover:opacity-70">
                 <ChevronsUpDown className="text-muted-foreground size-3" />
