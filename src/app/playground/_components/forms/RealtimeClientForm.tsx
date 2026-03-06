@@ -1,32 +1,28 @@
-"use client";
+'use client'
 
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Controller, useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  realtimeClientSchema,
-  vsnSchema,
-  type RealtimeClientFormValues,
-} from "@/schemas/client";
+} from '@/components/ui/select'
+import { realtimeClientSchema, vsnSchema, type RealtimeClientFormValues } from '@/schemas/client'
 
 type Props = {
-  onSubmit: (values: RealtimeClientFormValues) => void;
-  onDelete: () => void;
-  onConnect: () => void;
-  onDisconnect: () => void;
-  disabled?: boolean;
-  status?: string;
-};
+  onSubmit: (values: RealtimeClientFormValues) => void
+  onDelete: () => void
+  onConnect: () => void
+  onDisconnect: () => void
+  disabled?: boolean
+  status?: string
+}
 
 export function RealtimeClientForm({
   onSubmit,
@@ -39,9 +35,9 @@ export function RealtimeClientForm({
   const form = useForm<RealtimeClientFormValues>({
     resolver: zodResolver(realtimeClientSchema),
     defaultValues: realtimeClientSchema.parse({}),
-  });
+  })
 
-  const errors = form.formState.errors;
+  const errors = form.formState.errors
 
   return (
     <form
@@ -54,48 +50,51 @@ export function RealtimeClientForm({
           <Label className="text-xs" htmlFor="realtime-client-form-url">
             URL
           </Label>
-          {errors.url && (
-            <p className="text-xs text-destructive">{errors.url.message}</p>
-          )}
+          {errors.url && <p className="text-destructive text-xs">{errors.url.message}</p>}
         </div>
         <div className="flex justify-between">
           <Label className="text-xs" htmlFor="realtime-client-form-apikey">
             API Key
           </Label>
-          {errors.apiKey && (
-            <p className="text-xs text-destructive">{errors.apiKey.message}</p>
-          )}
+          {errors.apiKey && <p className="text-destructive text-xs">{errors.apiKey.message}</p>}
         </div>
         <Input
           id="realtime-client-form-url"
           placeholder="https://your-project.supabase.co/realtime/v1"
           disabled={disabled}
           aria-invalid={!!errors.url}
-          {...form.register("url")}
+          {...form.register('url')}
         />
         <Input
           id="realtime-client-form-apikey"
           placeholder="your-anon-key"
           disabled={disabled}
           aria-invalid={!!errors.apiKey}
-          {...form.register("apiKey")}
+          {...form.register('apiKey')}
         />
       </div>
 
-      <div className="grid grid-cols-[auto_auto_1fr_1fr] gap-2 place-content-stretch ">
+      <div className="grid grid-cols-[auto_auto_1fr_1fr] place-content-stretch gap-2">
         <Label className="text-xs" htmlFor="realtime-client-form-worker">
           Worker?
         </Label>
         <Label className="text-xs" htmlFor="realtime-client-form-vsn">
           VSN
         </Label>
-        <Label className="text-xs" htmlFor="realtime-client-form-heartbeat">
-          Heartbeat Interval (ms)
-        </Label>
-        <Label className="text-xs" htmlFor="realtime-client-form-timeout">
-          Timeout (ms)
-        </Label>
-
+        <div className="flex justify-between">
+          <Label className="text-xs" htmlFor="realtime-client-form-heartbeat">
+            Heartbeat Interval (ms)
+          </Label>
+          {errors.heartbeatIntervalMs && (
+            <p className="text-destructive text-xs">{errors.heartbeatIntervalMs.message}</p>
+          )}
+        </div>
+        <div className="flex justify-between">
+          <Label className="text-xs" htmlFor="realtime-client-form-timeout">
+            Timeout (ms)
+          </Label>
+          {errors.timeout && <p className="text-destructive text-xs">{errors.timeout.message}</p>}
+        </div>
         <Controller
           control={form.control}
           name="worker"
@@ -115,11 +114,7 @@ export function RealtimeClientForm({
           control={form.control}
           name="vsn"
           render={({ field }) => (
-            <Select
-              value={field.value}
-              onValueChange={field.onChange}
-              disabled={disabled}
-            >
+            <Select value={field.value} onValueChange={field.onChange} disabled={disabled}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -138,14 +133,14 @@ export function RealtimeClientForm({
           placeholder="30000"
           type="number"
           disabled={disabled}
-          {...form.register("heartbeatIntervalMs")}
+          {...form.register('heartbeatIntervalMs')}
         />
         <Input
           id="realtime-client-form-timeout"
           placeholder="10000"
           type="number"
           disabled={disabled}
-          {...form.register("timeout")}
+          {...form.register('timeout')}
         />
       </div>
 
@@ -158,10 +153,10 @@ export function RealtimeClientForm({
           <Button
             type="button"
             className="flex-1"
-            variant={status === "open" ? "secondary" : "default"}
-            onClick={status === "open" ? onDisconnect : onConnect}
+            variant={status === 'open' ? 'secondary' : 'default'}
+            onClick={status === 'open' ? onDisconnect : onConnect}
           >
-            {status === "open" ? "Disconnect" : "Connect"}
+            {status === 'open' ? 'Disconnect' : 'Connect'}
           </Button>
           <Button type="button" variant="destructive" onClick={onDelete}>
             Delete
@@ -169,5 +164,5 @@ export function RealtimeClientForm({
         </div>
       )}
     </form>
-  );
+  )
 }
