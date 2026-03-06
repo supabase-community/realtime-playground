@@ -32,7 +32,7 @@ export default {
 
         // Test inserts
         await supabase.from(table).insert({ value: originalValue, id });
-        waitFor(() => !!insertResult);
+        await waitFor(() => !!insertResult);
         assert.equal(insertResult.payload.record.id, id);
         assert.equal(insertResult.payload.record.value, originalValue);
         assert.equal(insertResult.payload.old_record, null);
