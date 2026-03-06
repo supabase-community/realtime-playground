@@ -2,6 +2,7 @@ import assert from 'assert'
 import broadcastExtension from './broadcast-extension'
 import presenceExtension from './presence-extension'
 import authorizationCheck from './authorization-check'
+import broadcastChanges from './broadcast-changes'
 
 export type Test = {
   name: string
@@ -24,7 +25,8 @@ export type TestResult =
 export const testCases: TestSuite = {
   ...broadcastExtension,
   ...presenceExtension,
-  ...authorizationCheck
+  ...authorizationCheck,
+  ...broadcastChanges
 }
 
 export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
