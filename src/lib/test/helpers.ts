@@ -33,3 +33,42 @@ export async function signInUser(
   if (error) throw new Error(`Error signing in: ${error.message}`);
   return data!.session!.access_token;
 }
+
+export async function executeInsert(
+  supabase: SupabaseClient,
+  table: string
+): Promise<number> {
+  const { data, error }: any = await supabase
+    .from(table)
+    .insert([{ value: crypto.randomUUID() }])
+    .select("id");
+
+  if (error) throw new Error(`Error inserting data: ${error.message}`);
+  return data[0].id;
+}
+
+export async function executeUpdate(
+  supabase: SupabaseClient,
+  table: string,
+  id: number
+) {
+  const { data, error } = await supabase
+    .from(table)
+    .update({ value: crypto.randomUUID() })
+    .eq("id", id);
+
+  if (error) throw new Error(`Error updating data: ${error.message}`);
+  return data;
+}
+
+export async function executeDelete(
+  supabase: SupabaseClient,
+  table: string,
+  id: number
+) {
+  const { data, error } = await supabase.from(table).delete().eq("id", id);
+  if (error) {
+    throw new Error(`Error deleting data: ${error.message}`);
+  }
+  return data;
+}
