@@ -76,6 +76,8 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
   const [open, setOpen] = useState(true)
 
   const handleRun = async () => {
+    setStatus('running')
+    setMessage('')
     const res = await runTest(test, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY)
     if (res.status == 'passed') {
       setStatus('passed')
@@ -101,7 +103,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
               </CollapsibleTrigger>
             )}
             {statusBadge(status)}
-            {status != 'passed' && (
+            {!(status && ['passed', 'running'].includes(status)) && (
               <Button variant="ghost" size="icon-sm" onClick={handleRun}>
                 <Rocket />
               </Button>
