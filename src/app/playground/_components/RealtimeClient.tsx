@@ -1,8 +1,9 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import type { RealtimeClientFormValues } from '@/schemas/client'
 import { RealtimeClientForm } from './forms'
+import { NEXT_PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 
 type Props = {
   onSubmit: (values: RealtimeClientFormValues) => void
@@ -40,6 +41,11 @@ export function RealtimeClient({ status, disabled, ...props }: Props) {
       <CardContent>
         <RealtimeClientForm {...props} disabled={disabled} status={status} />
       </CardContent>
+      <CardFooter>
+        <p className="text-muted-foreground w-full text-xs wrap-break-word">
+          Default API KEY: {NEXT_PUBLIC_SUPABASE_KEY}
+        </p>
+      </CardFooter>
     </Card>
   )
 }
