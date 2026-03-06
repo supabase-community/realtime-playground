@@ -1,4 +1,5 @@
 import assert from 'assert'
+import broadcastExtension from './broadcast-extension'
 
 export type Test = {
   name: string
@@ -18,7 +19,9 @@ export type TestResult =
     message: string
   }
 
-export const testCases: TestSuite = {}
+export const testCases: TestSuite = {
+  ...broadcastExtension
+}
 
 export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
   try {
