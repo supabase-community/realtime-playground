@@ -19,7 +19,7 @@ export function RealtimeClient({ status, disabled, ...props }: Props) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Realtime Client</CardTitle>
+          <CardTitle className="text-base">Client Creation</CardTitle>
           {disabled && status && (
             <div className="flex items-center gap-2">
               <span

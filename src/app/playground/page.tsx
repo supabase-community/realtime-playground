@@ -19,6 +19,7 @@ import {
 } from '@/app/playground/_components/tables'
 import { useRealtimeStore } from '@/store/realtimeStore'
 import { useSupabaseStore } from '@/store/supabaseStore'
+import { ActiveChannels } from './_components/ActiveChannels'
 
 export default function Playground() {
   const status = useRealtimeStore((s) => s.status)
@@ -93,7 +94,8 @@ export default function Playground() {
           status={status}
         />
         <Auth />
-        <RealtimeChannels
+        <RealtimeChannels />
+        <ActiveChannels
           onAddBroadcastListener={addBroadcastListener}
           onAddPresenceListener={addPresenceListener}
         />
