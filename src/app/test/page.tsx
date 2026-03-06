@@ -7,6 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import { ChevronsUpDown, Rocket } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import {
+  NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_KEY,
+} from "@/lib/constants";
 
 export default function TestsPage() {
   const [state, setState] = useState('Run')
@@ -72,7 +76,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
   const [open, setOpen] = useState(true)
 
   const handleRun = async () => {
-    const res = await runTest(test)
+    const res = await runTest(test, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY)
     if (res.status == 'passed') {
       setStatus('passed')
     } else {
