@@ -24,13 +24,10 @@ export const runTest = async (test: Test, url: string, key: string): Promise<Tes
   try {
     await test.body(url, key)
   } catch (e) {
-    if (e instanceof assert.AssertionError) {
-      return {
-        status: 'failed',
-        message: e.message,
-      }
+    return {
+      status: 'failed',
+      message: (e as Error).message,
     }
-    throw e
   }
 
   return {
