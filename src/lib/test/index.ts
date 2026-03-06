@@ -1,5 +1,6 @@
 import assert from 'assert'
 import broadcastExtension from './broadcast-extension'
+import presenceExtension from './presence-extension'
 
 export type Test = {
   name: string
@@ -20,7 +21,8 @@ export type TestResult =
   }
 
 export const testCases: TestSuite = {
-  ...broadcastExtension
+  ...broadcastExtension,
+  ...presenceExtension
 }
 
 export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
