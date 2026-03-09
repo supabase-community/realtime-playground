@@ -17,7 +17,7 @@ export default function TestsPage() {
   const testSuitesRefs = useRef<(TestCaseHandle | null)[]>([])
 
   const runAllTests = async () => {
-    setState('Loading')
+    setState('Running')
     await Promise.all(testSuitesRefs.current.filter((e) => !!e).map((e) => e.handleRun()))
     setState('Done')
   }
@@ -134,8 +134,14 @@ const TestSection = forwardRef(({ name, tests }: TestSectionProps, ref) => {
   const testCasesRefs = useRef<(TestCaseHandle | null)[]>([])
 
   const runAllTests = async () => {
-    setState('Loading')
-    await Promise.all(testCasesRefs.current.filter((e) => !!e).map((e) => e.handleRun()))
+    setState('Running')
+    // Copy all values so tests do not rerun indefinetly
+    const cases = [...testCasesRefs.current];
+    for (let testCase of cases) {
+      if (testCase) {
+        await testCase.handleRun()
+      }
+    }
     setState('Done')
   }
 
