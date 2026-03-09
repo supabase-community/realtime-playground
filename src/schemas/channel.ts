@@ -53,7 +53,7 @@ export const postgresListenerSchema = z.object({
     .enum(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT)
     .default(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL)
     .nonoptional(),
-  channel: z.string().min(1, 'Select a channel').nonoptional(),
+  name: z.string().min(1, 'Select a channel').nonoptional(),
 })
 
 export type PostgresListenerValues = z.infer<typeof postgresListenerSchema>

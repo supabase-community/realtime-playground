@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRealtimeStore } from '@/store/realtimeStore'
 import type { ChannelFormValues } from '@/schemas/channel'
-import { ChannelForm } from './forms/ChannelForm'
+import { ChannelCreationForm } from './forms/ChannelCreationForm'
 
 export function RealtimeChannels() {
   const handleCreate = ({ name, config }: ChannelFormValues) =>
@@ -23,7 +23,7 @@ export function RealtimeChannels() {
           )}
         </CardHeader>
         <CardContent className={disabled ? 'pointer-events-none opacity-50' : ''}>
-          <ChannelForm onSubmit={handleCreate} disabled={disabled} />
+          <ChannelCreationForm onSubmit={handleCreate} disabled={disabled} />
         </CardContent>
       </Card>
     </>

@@ -6,7 +6,7 @@ import type { RealtimeClientFormValues } from '@/schemas/client'
 
 export type SocketStatus = 'closed' | 'connecting' | 'open' | 'closing'
 
-type Logger = (kind: string, msg: string, data: any) => void
+type Logger = (kind: string, msg: string, data: unknown) => void
 
 export type RealtimeStore = {
   client: RealtimeClient | null

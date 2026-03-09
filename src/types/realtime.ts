@@ -8,7 +8,7 @@ export type BroadcastMessage = {
   timestamp: string
   channel: string
   event: string
-  payload: Record<string, any>
+  payload: Record<string, unknown>
 }
 
 // ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ export type PostgresChange = RealtimePostgresChangesPayload<Record<string, unkno
  *   }
  * }
  */
-export type PresenceByChannel = Record<string, Record<string, any[]>>
+export type PresenceByChannel = Record<string, Record<string, unknown[]>>
 
 // ---------------------------------------------------------------------------
 // Logs
@@ -44,5 +44,5 @@ export type LogEntry = {
   timestamp: string
   kind: string
   message: string
-  data: Record<string, any> | undefined
+  data: Record<string, unknown> | undefined
 }
