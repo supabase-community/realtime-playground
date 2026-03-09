@@ -1,13 +1,13 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 const sleep = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 export const waitFor = (cond: () => boolean, timeout = 5000, retryDelay = 200) => {
   return new Promise<void>(async (resolve, reject) => {
     setTimeout(() => {
-      reject({message: "timeout"});
+      reject({ message: 'timeout' })
     }, timeout)
 
     while (true) {
@@ -15,60 +15,45 @@ export const waitFor = (cond: () => boolean, timeout = 5000, retryDelay = 200) =
         resolve()
         return
       } else {
-        await sleep(retryDelay);
+        await sleep(retryDelay)
       }
     }
   })
 }
 
-export async function signInUser(
-  supabase: SupabaseClient,
-  email: string,
-  password: string
-) {
+export async function signInUser(supabase: SupabaseClient, email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-  });
-  if (error) throw new Error(`Error signing in: ${error.message}`);
-  return data!.session!.access_token;
+  })
+  if (error) throw new Error(`Error signing in: ${error.message}`)
+  return data!.session!.access_token
 }
 
-export async function executeInsert(
-  supabase: SupabaseClient,
-  table: string
-): Promise<number> {
+export async function executeInsert(supabase: SupabaseClient, table: string): Promise<number> {
   const { data, error }: any = await supabase
     .from(table)
     .insert([{ value: crypto.randomUUID() }])
-    .select("id");
+    .select('id')
 
-  if (error) throw new Error(`Error inserting data: ${error.message}`);
-  return data[0].id;
+  if (error) throw new Error(`Error inserting data: ${error.message}`)
+  return data[0].id
 }
 
-export async function executeUpdate(
-  supabase: SupabaseClient,
-  table: string,
-  id: number
-) {
+export async function executeUpdate(supabase: SupabaseClient, table: string, id: number) {
   const { data, error } = await supabase
     .from(table)
     .update({ value: crypto.randomUUID() })
-    .eq("id", id);
+    .eq('id', id)
 
-  if (error) throw new Error(`Error updating data: ${error.message}`);
-  return data;
+  if (error) throw new Error(`Error updating data: ${error.message}`)
+  return data
 }
 
-export async function executeDelete(
-  supabase: SupabaseClient,
-  table: string,
-  id: number
-) {
-  const { data, error } = await supabase.from(table).delete().eq("id", id);
+export async function executeDelete(supabase: SupabaseClient, table: string, id: number) {
+  const { data, error } = await supabase.from(table).delete().eq('id', id)
   if (error) {
-    throw new Error(`Error deleting data: ${error.message}`);
+    throw new Error(`Error deleting data: ${error.message}`)
   }
-  return data;
+  return data
 }

@@ -16,19 +16,19 @@ export type TestSuite = {
 
 export type TestResult =
   | {
-    status: 'passed'
-  }
+      status: 'passed'
+    }
   | {
-    status: 'failed'
-    message: string
-  }
+      status: 'failed'
+      message: string
+    }
 
 export const testCases: TestSuite = {
   ...broadcastExtension,
   ...presenceExtension,
   ...authorizationCheck,
   ...broadcastChanges,
-  ...postgresChangesExtension
+  ...postgresChangesExtension,
 }
 
 export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
