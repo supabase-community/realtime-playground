@@ -31,6 +31,7 @@ export async function signInUser(supabase: SupabaseClient, email: string, passwo
 }
 
 export async function executeInsert(supabase: SupabaseClient, table: string): Promise<number> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error }: any = await supabase
     .from(table)
     .insert([{ value: crypto.randomUUID() }])

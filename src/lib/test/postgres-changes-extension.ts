@@ -17,10 +17,10 @@ export default {
         await supabase.realtime.setAuth()
 
         let subscribed: string | null = null
-        let result: any = null
-        let topic = 'topic:' + crypto.randomUUID()
+        let result: object | null = null
+        const topic = 'topic:' + crypto.randomUUID()
 
-        let previousId = await executeInsert(supabase, 'pg_changes')
+        const previousId = await executeInsert(supabase, 'pg_changes')
         await executeInsert(supabase, 'dummy')
 
         const channel = supabase
@@ -57,13 +57,13 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: any = null
+        let result: object | null = null
         let subscribed: string | null = null
-        let topic = 'topic:' + crypto.randomUUID()
+        const topic = 'topic:' + crypto.randomUUID()
 
-        let mainId = await executeInsert(supabase, 'pg_changes')
-        let fakeId = await executeInsert(supabase, 'pg_changes')
-        let dummyId = await executeInsert(supabase, 'dummy')
+        const mainId = await executeInsert(supabase, 'pg_changes')
+        const fakeId = await executeInsert(supabase, 'pg_changes')
+        const dummyId = await executeInsert(supabase, 'dummy')
 
         const channel = supabase
           .channel(topic, config)
@@ -100,13 +100,13 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: any = null
+        let result: object | null = null
         let subscribed: string | null = null
-        let topic = 'topic:' + crypto.randomUUID()
+        const topic = 'topic:' + crypto.randomUUID()
 
-        let mainId = await executeInsert(supabase, 'pg_changes')
-        let fakeId = await executeInsert(supabase, 'pg_changes')
-        let dummyId = await executeInsert(supabase, 'dummy')
+        const mainId = await executeInsert(supabase, 'pg_changes')
+        const fakeId = await executeInsert(supabase, 'pg_changes')
+        const dummyId = await executeInsert(supabase, 'dummy')
 
         const channel = supabase
           .channel(topic, config)

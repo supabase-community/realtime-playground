@@ -12,12 +12,13 @@ export default {
       body: async (url, token) => {
         const supabase = createClient(url, token, { realtime })
 
-        let result: any = []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result: any = []
         let error = null
-        let topic = 'topic:' + crypto.randomUUID()
-        let message = crypto.randomUUID()
-        let key = crypto.randomUUID()
-        let expectedPayload = { message }
+        const topic = 'topic:' + crypto.randomUUID()
+        const message = crypto.randomUUID()
+        const key = crypto.randomUUID()
+        const expectedPayload = { message }
 
         const config = { config: { broadcast: { self: true }, presence: { key } } }
         const channel = supabase
@@ -34,7 +35,7 @@ export default {
 
         await waitFor(() => result.length > 0)
 
-        let presences = result[0].newPresences[0]
+        const presences = result[0].newPresences[0]
         assert.equal(result[0].key, key)
         assert.equal(presences.message, message)
         assert.equal(error, null)
@@ -47,12 +48,13 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: any = []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result: any = []
         let error = null
-        let topic = 'topic:' + crypto.randomUUID()
-        let message = crypto.randomUUID()
-        let key = crypto.randomUUID()
-        let expectedPayload = { message }
+        const topic = 'topic:' + crypto.randomUUID()
+        const message = crypto.randomUUID()
+        const key = crypto.randomUUID()
+        const expectedPayload = { message }
 
         const config = {
           config: { private: true, broadcast: { self: true }, presence: { key } },
@@ -71,7 +73,7 @@ export default {
 
         await waitFor(() => result.length > 0)
 
-        let presences = result[0].newPresences[0]
+        const presences = result[0].newPresences[0]
         assert.equal(result[0].key, key)
         assert.equal(presences.message, message)
         assert.equal(error, null)

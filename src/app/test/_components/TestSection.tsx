@@ -22,7 +22,7 @@ const TestSection = forwardRef(({ name, tests }: TestSectionProps, ref) => {
     // Copy all values so tests do not rerun indefinetly
     const cases = [...testCasesRefs.current]
     let failed = false
-    for (let testCase of cases) {
+    for (const testCase of cases) {
       if (testCase) {
         if ((await testCase.handleRun()) == 'Failed') {
           failed = true

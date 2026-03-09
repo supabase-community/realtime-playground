@@ -19,6 +19,7 @@ export default {
         const originalValue = crypto.randomUUID()
         const updatedValue = crypto.randomUUID()
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let insertResult: any, updateResult: any, deleteResult: any
 
         const channel = supabase

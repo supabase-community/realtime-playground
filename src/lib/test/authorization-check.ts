@@ -12,13 +12,13 @@ export default {
       body: async (url, token) => {
         const supabase = createClient(url, token, { realtime })
 
-        let errMessage: any = null
-        let topic = 'topic:' + crypto.randomUUID()
+        let errMessage: string | null = null
+        const topic = 'topic:' + crypto.randomUUID()
 
         const channel = supabase
           .channel(topic, { config: { private: true } })
-          .subscribe((status: string, err: any) => {
-            if (status == 'CHANNEL_ERROR') errMessage = err.message
+          .subscribe((status, err) => {
+            if (status == 'CHANNEL_ERROR') errMessage = err ? err.message : null
           })
 
         await waitFor(() => channel.state == 'errored')
@@ -36,7 +36,7 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let topic = 'topic:' + crypto.randomUUID()
+        const topic = 'topic:' + crypto.randomUUID()
         let connected = false
 
         const channel = supabase

@@ -13,8 +13,8 @@ export default {
         const supabase = createClient(url, key)
         const topic = 'topic:' + crypto.randomUUID()
         const event = crypto.randomUUID()
-        let expectedPayload = { message: crypto.randomUUID() }
-        let result: Object | null = null
+        const expectedPayload = { message: crypto.randomUUID() }
+        let result: object | null = null
 
         const channel = supabase
           .channel(topic, config)
@@ -39,8 +39,8 @@ export default {
         const supabase = createClient(url, key)
         const topic = 'topic:' + crypto.randomUUID()
         const event = crypto.randomUUID()
-        let expectedPayload = { message: crypto.randomUUID() }
-        let result: Object | null = null
+        const expectedPayload = { message: crypto.randomUUID() }
+        let result: object | null = null
 
         const channel = supabase
           .channel(topic, config)

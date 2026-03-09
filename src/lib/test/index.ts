@@ -1,4 +1,3 @@
-import assert from 'assert'
 import broadcastExtension from './broadcast-extension'
 import presenceExtension from './presence-extension'
 import authorizationCheck from './authorization-check'
