@@ -95,11 +95,7 @@ function SetupScreen({ onBack }: { onBack: () => void }) {
         </DialogTitle>
       </DialogHeader>
       <div className="text-muted-foreground flex flex-col gap-3 text-sm">
-        <p>1. Go to your Supabase project dashboard.</p>
-        <p>2. Navigate to Project Settings &gt; API.</p>
-        <p>3. Copy the Project URL and the anon/public API key.</p>
-        <p>4. Paste them into the settings fields, or use the &quot;Paste keys&quot; button to auto-fill from your clipboard.</p>
-        <p>5. Run the following SQL in the SQL Editor:</p>
+        <p>TODO: write instruction</p>
         <SqlSnippet />
       </div>
     </>
