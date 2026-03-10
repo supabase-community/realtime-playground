@@ -1,50 +1,50 @@
-import { create } from "zustand";
-import { RealtimeClient, RealtimeChannel } from "@supabase/supabase-js";
-import { toast } from "sonner";
-import type { ChannelConfig } from "@/schemas/channel";
-import type { RealtimeClientFormValues } from "@/schemas/realtimeClient";
+import { create } from 'zustand'
+import { RealtimeClient, RealtimeChannel } from '@supabase/supabase-js'
+import { toast } from 'sonner'
+import type { ChannelConfigValues } from '@/schemas/channel'
+import type { RealtimeClientFormValues } from '@/schemas/client'
 
-export type SocketStatus = "closed" | "connecting" | "open" | "closing";
+export type SocketStatus = 'closed' | 'connecting' | 'open' | 'closing'
 
-type Logger = (kind: string, msg: string, data: any) => void;
+type Logger = (kind: string, msg: string, data: unknown) => void
 
 export type RealtimeStore = {
-  client: RealtimeClient | null;
-  socketConfig: RealtimeClientFormValues | null;
-  status: SocketStatus;
-  channels: Map<string, RealtimeChannel>;
+  client: RealtimeClient | null
+  socketConfig: RealtimeClientFormValues | null
+  status: SocketStatus
+  channels: Map<string, RealtimeChannel>
 
-  create: (config: RealtimeClientFormValues, logger?: Logger) => void;
-  destroy: () => void;
-  syncStatus: () => void;
-  syncChannels: () => void;
+  create: (config: RealtimeClientFormValues, logger?: Logger) => void
+  destroy: () => void
+  syncStatus: () => void
+  syncChannels: () => void
 
-  connect: () => void;
-  disconnect: () => void;
+  connect: () => void
+  disconnect: () => void
 
-  createChannel: (name: string, config?: ChannelConfig) => void;
-  removeChannel: (name: string) => void;
-  subscribedChannels: () => [string, RealtimeChannel][];
-  subscribe: (name: string) => void;
-  unsubscribe: (name: string) => void;
-  trackPresence: (name: string, payload: Record<string, unknown>) => void;
-  untrackPresence: (name: string) => void;
+  createChannel: (name: string, config?: ChannelConfigValues) => void
+  removeChannel: (name: string) => void
+  subscribedChannels: () => [string, RealtimeChannel][]
+  subscribe: (name: string) => void
+  unsubscribe: (name: string) => void
+  trackPresence: (name: string, payload: Record<string, unknown>) => void
+  untrackPresence: (name: string) => void
 
-  setAuth: (token: string) => void;
-};
+  setAuth: (token: string) => void
+}
 
 export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   client: null,
   socketConfig: null,
-  status: "closed",
+  status: 'closed',
   channels: new Map(),
 
   create(config, logger) {
-    get().client?.disconnect();
-    const timeout = config.timeout ? parseInt(config.timeout) : undefined;
+    get().client?.disconnect()
+    const timeout = config.timeout ? parseInt(config.timeout) : undefined
     const heartbeatIntervalMs = config.heartbeatIntervalMs
       ? parseInt(config.heartbeatIntervalMs)
-      : undefined;
+      : undefined
     set({
       socketConfig: config,
       client: new RealtimeClient(config.url, {
@@ -57,119 +57,117 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
         ...(heartbeatIntervalMs !== undefined ? { heartbeatIntervalMs } : {}),
         logger,
       }),
-    });
+    })
   },
 
   destroy() {
-    get().client?.disconnect();
+    get().client?.disconnect()
     set({
       client: null,
       socketConfig: null,
-      status: "closed",
+      status: 'closed',
       channels: new Map(),
-    });
+    })
   },
 
   syncStatus() {
-    const { client } = get();
-    if (!client) return;
-    const status = client.connectionState() as SocketStatus;
-    set({ status });
+    const { client } = get()
+    if (!client) return
+    const status = client.connectionState() as SocketStatus
+    set({ status })
   },
 
   syncChannels() {
-    const { client } = get();
-    if (!client) return;
+    const { client } = get()
+    if (!client) return
     set({
       channels: new Map(client.getChannels().map((ch) => [ch.subTopic, ch])),
-    });
+    })
   },
 
   connect: () => get().client?.connect(),
   disconnect: () => get().client?.disconnect(),
 
   createChannel(name, config) {
-    const { client, channels, syncChannels } = get();
-    if (!client) return;
+    const { client, channels, syncChannels } = get()
+    if (!client) return
     if (channels.has(name)) {
-      toast.warning(`Channel "${name}" already exists`);
-      return;
+      toast.warning(`Channel "${name}" already exists`)
+      return
     }
 
-    const ch = client.channel(name, config ? { config } : undefined);
-    ch.on("system", {}, (payload) => {
-      const msg = `[SYSTEM] ${payload.message}`;
-      if (payload.status === "ok") toast.success(msg);
-      else toast.error(msg);
-    });
+    const ch = client.channel(name, config ? { config } : undefined)
+    ch.on('system', {}, (payload) => {
+      const msg = `[SYSTEM] ${payload.message}`
+      if (payload.status === 'ok') toast.success(msg)
+      else toast.error(msg)
+    })
 
-    syncChannels();
+    syncChannels()
   },
 
   removeChannel(name) {
-    const { channels, syncChannels } = get();
-    const ch = channels.get(name);
+    const { channels, syncChannels } = get()
+    const ch = channels.get(name)
     if (!ch) {
-      toast.error(`[REMOVE] Channel "${name}" not found`);
-      return;
+      toast.error(`[REMOVE] Channel "${name}" not found`)
+      return
     }
-    ch.unsubscribe();
-    syncChannels();
+    ch.unsubscribe()
+    syncChannels()
   },
 
   subscribedChannels() {
-    const { channels } = get();
-    return Array.from(channels.entries()).filter(
-      ([, ch]) => ch.state === "joined",
-    );
+    const { channels } = get()
+    return Array.from(channels.entries()).filter(([, ch]) => ch.state === 'joined')
   },
 
   subscribe(name) {
-    const { channels, syncChannels } = get();
-    const ch = channels.get(name);
+    const { channels, syncChannels } = get()
+    const ch = channels.get(name)
     if (!ch) {
-      toast.error(`[SUBSCRIBE] Channel "${name}" not found`);
-      return;
+      toast.error(`[SUBSCRIBE] Channel "${name}" not found`)
+      return
     }
     ch.subscribe((status, err) => {
       if (err) {
-        toast.error(`[SUBSCRIBE] Error: ${err.message}`);
-      } else if (status === "SUBSCRIBED") {
-        toast.success(`[SUBSCRIBE] Subscribed to "${name}"`);
+        toast.error(`[SUBSCRIBE] Error: ${err.message}`)
+      } else if (status === 'SUBSCRIBED') {
+        toast.success(`[SUBSCRIBE] Subscribed to "${name}"`)
       }
 
-      syncChannels();
-    });
+      syncChannels()
+    })
   },
 
   unsubscribe(name) {
-    const { channels, syncChannels } = get();
-    const ch = channels.get(name);
+    const { channels, syncChannels } = get()
+    const ch = channels.get(name)
     if (!ch) {
-      toast.error(`[UNSUBSCRIBE] Channel "${name}" not found`);
-      return;
+      toast.error(`[UNSUBSCRIBE] Channel "${name}" not found`)
+      return
     }
-    ch.unsubscribe();
-    syncChannels();
+    ch.unsubscribe()
+    syncChannels()
   },
 
   trackPresence(name, payload) {
-    const ch = get().channels.get(name);
+    const ch = get().channels.get(name)
     if (!ch) {
-      toast.error(`[TRACK] Channel "${name}" not found`);
-      return;
+      toast.error(`[TRACK] Channel "${name}" not found`)
+      return
     }
-    ch.track(payload);
+    ch.track(payload)
   },
 
   untrackPresence(name) {
-    const ch = get().channels.get(name);
+    const ch = get().channels.get(name)
     if (!ch) {
-      toast.error(`[UNTRACK] Channel "${name}" not found`);
-      return;
+      toast.error(`[UNTRACK] Channel "${name}" not found`)
+      return
     }
-    ch.untrack();
+    ch.untrack()
   },
 
   setAuth: (token) => get().client?.setAuth(token),
-}));
+}))

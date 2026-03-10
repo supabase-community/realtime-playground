@@ -137,6 +137,6 @@
     background-color: oklch(0.45 0 0);
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden;
   }
 }
