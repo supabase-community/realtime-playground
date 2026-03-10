@@ -28,7 +28,7 @@ export default function TestsPage() {
     <TestSettingsProvider>
       <div className="min-h-screen p-4 font-mono text-sm">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-6 flex justify-between items-center">
+          <div className="mb-6 flex items-center justify-between">
             <h1 className="text-2xl font-bold">Test Runner</h1>
             <div className="flex items-center gap-2">
               <TestSettingsModal />

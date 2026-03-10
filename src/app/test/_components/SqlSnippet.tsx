@@ -112,11 +112,11 @@ const SqlSnippet = () => {
       </button>
       {highlighted ? (
         <div
-          className="max-h-80 overflow-hidden rounded-md text-xs [&_pre]:h-full [&_pre]:max-h-80 [&_pre]:overflow-y-auto [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:p-4"
+          className="max-h-80 overflow-hidden rounded-md text-xs [&_pre]:h-full [&_pre]:max-h-80 [&_pre]:overflow-y-auto [&_pre]:p-4 [&_pre]:break-words [&_pre]:whitespace-pre-wrap"
           dangerouslySetInnerHTML={{ __html: highlighted }}
         />
       ) : (
-        <pre className="bg-muted max-h-80 overflow-y-auto whitespace-pre-wrap break-words rounded-md p-4 text-xs">
+        <pre className="bg-muted max-h-80 overflow-y-auto rounded-md p-4 text-xs break-words whitespace-pre-wrap">
           <code>{sql}</code>
         </pre>
       )}

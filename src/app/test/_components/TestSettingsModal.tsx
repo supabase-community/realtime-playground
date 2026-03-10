@@ -22,7 +22,10 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
 
   const handlePaste = async () => {
     const text = await navigator.clipboard.readText()
-    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean)
     for (const line of lines) {
       const eqIndex = line.indexOf('=')
       if (eqIndex === -1) continue
@@ -71,7 +74,7 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
             href="https://supabase.com/dashboard/project/_?showConnect=true&connectTab=frameworks"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline hover:text-foreground"
+            className="hover:text-foreground underline"
           >
             Get your keys at supabase.com
           </a>
@@ -87,7 +90,8 @@ function SetupScreen({ onBack }: { onBack: () => void }) {
       <DialogHeader>
         <DialogTitle>
           <button
-            className="text-muted-foreground hover:text-foreground mr-2 inline-flex items-center" onClick={onBack}
+            className="text-muted-foreground hover:text-foreground mr-2 inline-flex items-center"
+            onClick={onBack}
           >
             <ArrowLeft className="size-4" />
           </button>
@@ -106,7 +110,11 @@ export default function TestSettingsModal({ children }: { children?: ReactNode }
   const [screen, setScreen] = useState<Screen>('settings')
 
   return (
-    <Dialog onOpenChange={(open) => { if (!open) setScreen('settings') }}>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) setScreen('settings')
+      }}
+    >
       <DialogTrigger asChild>
         {children ?? (
           <Button variant="outline" size="icon-sm">
