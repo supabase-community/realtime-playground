@@ -5,6 +5,8 @@ import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Status, statusVariant, type TestCaseHandle } from './_components/helpers'
 import TestSection from './_components/TestSection'
+import { TestSettingsProvider } from '@/hooks/useTestSettings'
+import TestSettingsModal from './_components/TestSettingsModal'
 
 export default function TestsPage() {
   const [status, setStatus] = useState<Status>(null)
@@ -23,32 +25,37 @@ export default function TestsPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 font-mono text-sm">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex justify-between">
-          <h1 className="mb-6 text-2xl font-bold">Test Runner</h1>
-          <Button
-            disabled={!!status}
-            variant={statusVariant(status)}
-            size="sm"
-            onClick={runAllTests}
-          >
-            {status || 'Run'}
-          </Button>
-        </div>
-        <div className="space-y-4">
-          {Object.entries(testCases).map(([k, v]) => (
-            <TestSection
-              key={k}
-              name={k}
-              tests={v}
-              ref={(el) => {
-                testSuitesRefs.current.push(el as TestCaseHandle)
-              }}
-            />
-          ))}
+    <TestSettingsProvider>
+      <div className="min-h-screen p-4 font-mono text-sm">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">Test Runner</h1>
+            <div className="flex items-center gap-2">
+              <TestSettingsModal />
+              <Button
+                disabled={!!status}
+                variant={statusVariant(status)}
+                size="sm"
+                onClick={runAllTests}
+              >
+                {status || 'Run'}
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {Object.entries(testCases).map(([k, v]) => (
+              <TestSection
+                key={k}
+                name={k}
+                tests={v}
+                ref={(el) => {
+                  testSuitesRefs.current.push(el as TestCaseHandle)
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </TestSettingsProvider>
   )
 }

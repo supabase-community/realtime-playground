@@ -1,11 +1,11 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { NEXT_PUBLIC_SUPABASE_KEY, NEXT_PUBLIC_SUPABASE_URL } from '@/lib/constants'
 import { runTest, Test } from '@/lib/test'
 import { ChevronsUpDown, Rocket } from 'lucide-react'
-import { forwardRef, useImperativeHandle, useState } from 'react'
+import { useCallback, forwardRef, useImperativeHandle, useState } from 'react'
 import { Status, statusVariant } from './helpers'
+import { useTestSettings } from '@/hooks/useTestSettings'
 
 const statusBadge = (status: Status) => {
   return <Badge variant={statusVariant(status)}>{status}</Badge>
@@ -19,11 +19,12 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
   const [status, setStatus] = useState<Status>(null)
   const [message, setMessage] = useState<string>('')
   const [open, setOpen] = useState(true)
+  const { supabaseUrl, supabaseKey } = useTestSettings()
 
-  const handleRun = async () => {
+  const handleRun = useCallback(async () => {
     setStatus('Running')
     setMessage('')
-    const res = await runTest(test, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY)
+    const res = await runTest(test, supabaseUrl, supabaseKey)
     if (res.status == 'passed') {
       setStatus('Passed')
       return 'Passed'
@@ -32,7 +33,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
       setMessage(res.message)
       return 'Failed'
     }
-  }
+  }, [test, supabaseUrl, supabaseKey])
 
   useImperativeHandle(ref, () => ({
     handleRun,
