@@ -44,13 +44,12 @@ export default function Playground() {
 
   useEffect(() => {
     useSupabaseStore.getState().init()
-    return () => useRealtimeStore.getState().destroy()
-  }, [])
-
-  useEffect(() => {
     const interval = setInterval(() => useRealtimeStore.getState().syncStatus(), 500)
     useRealtimeStore.getState().syncStatus()
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      useRealtimeStore.getState().destroy()
+    }
   }, [])
 
   const addBroadcastListener = useCallback(

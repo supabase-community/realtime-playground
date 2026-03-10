@@ -12,10 +12,6 @@ export default function Auth() {
     await login(email, password)
   }
 
-  const handleLogout = async () => {
-    await logout()
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -43,7 +39,7 @@ export default function Auth() {
                 <span className="font-semibold underline">Token: </span> {token}
               </p>
             </div>
-            <Button variant="destructive" className="w-full" onClick={handleLogout}>
+            <Button variant="destructive" className="w-full" onClick={logout}>
               Log Out
             </Button>
           </div>

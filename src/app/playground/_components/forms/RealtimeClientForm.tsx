@@ -37,7 +37,7 @@ export function RealtimeClientForm({
     defaultValues: realtimeClientSchema.parse({}),
   })
 
-  const errors = form.formState.errors
+  const { errors } = form.formState
 
   return (
     <form
