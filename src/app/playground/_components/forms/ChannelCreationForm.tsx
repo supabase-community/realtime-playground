@@ -13,7 +13,7 @@ interface Props {
   disabled: boolean
 }
 
-export function ChannelForm({ onSubmit, disabled }: Props) {
+export function ChannelCreationForm({ onSubmit, disabled }: Props) {
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
     defaultValues: channelFormSchema.parse({ name: 'test' }),

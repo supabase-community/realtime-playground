@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import type { LogEntry } from "@/types/realtime";
+import { useCallback, useState } from 'react'
+import type { LogEntry } from '@/types/realtime'
 
 export function useLogMessages() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([])
 
   const addLog = useCallback((kind: string, message: string, data: unknown) => {
     setLogs((prev) => [
@@ -12,14 +12,12 @@ export function useLogMessages() {
         kind,
         message,
         data:
-          data !== null && typeof data === "object"
-            ? (data as Record<string, unknown>)
-            : undefined,
+          data !== null && typeof data === 'object' ? (data as Record<string, unknown>) : undefined,
       },
-    ]);
-  }, []);
+    ])
+  }, [])
 
-  const clear = () => setLogs([]);
+  const clear = () => setLogs([])
 
-  return { logs, addLog, clear };
+  return { logs, addLog, clear }
 }

@@ -1,12 +1,9 @@
-import { useState } from "react";
-import type {
-  RealtimeChannel,
-  REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
-} from "@supabase/supabase-js";
-import type { PostgresChange } from "@/types/realtime";
+import { useState } from 'react'
+import type { RealtimeChannel, REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
+import type { PostgresChange } from '@/types/realtime'
 
 export function usePostgresChanges() {
-  const [changes, setChanges] = useState<PostgresChange[]>([]);
+  const [changes, setChanges] = useState<PostgresChange[]>([])
 
   const addListener = (
     channel: RealtimeChannel,
@@ -15,7 +12,7 @@ export function usePostgresChanges() {
     schema: string,
     table?: string,
   ) => {
-    channel.on("postgres_changes", { event, schema, table }, (payload) => {
+    channel.on('postgres_changes', { event, schema, table }, (payload) => {
       setChanges((prev) => [
         ...prev,
         {
@@ -23,11 +20,11 @@ export function usePostgresChanges() {
           timestamp: new Date().toISOString(),
           channel: channelName,
         } as PostgresChange,
-      ]);
-    });
-  };
+      ])
+    })
+  }
 
-  const clear = () => setChanges([]);
+  const clear = () => setChanges([])
 
-  return { changes, addListener, clear };
+  return { changes, addListener, clear }
 }

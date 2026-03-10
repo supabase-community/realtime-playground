@@ -36,7 +36,6 @@ export type ChannelConfigValues = z.infer<typeof channelConfigSchema>
 
 export const broadcastSendSchema = z.object({
   event: z.string().min(1, 'Event is required').default('message').nonoptional(),
-  channel: z.string().min(1, 'Select a channel').nonoptional(),
   message: z.string().optional(),
 })
 
@@ -53,7 +52,6 @@ export const postgresListenerSchema = z.object({
     .enum(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT)
     .default(REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL)
     .nonoptional(),
-  name: z.string().min(1, 'Select a channel').nonoptional(),
 })
 
 export type PostgresListenerValues = z.infer<typeof postgresListenerSchema>

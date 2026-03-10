@@ -3,10 +3,7 @@
 import { useEffect } from 'react'
 import { RealtimeClient } from '@/app/playground/_components/RealtimeClient'
 import { RealtimeChannels } from '@/app/playground/_components/RealtimeChannels'
-import { PostgresChanges } from '@/app/playground/_components/PostgresChanges'
-import { PresenceTrack } from '@/app/playground/_components/PresenceTrack'
 import Auth from '@/app/playground/_components/Auth'
-import { PostgresListenerValues } from '@/schemas/channel'
 import { useBroadcastMessages } from '@/hooks/useBroadcastMessages'
 import { useLogMessages } from '@/hooks/useLogMessages'
 import { usePostgresChanges } from '@/hooks/usePostgresChanges'
@@ -19,7 +16,7 @@ import {
 } from '@/app/playground/_components/tables'
 import { useRealtimeStore } from '@/store/realtimeStore'
 import { useSupabaseStore } from '@/store/supabaseStore'
-import { ActiveChannels } from './_components/ActiveChannels'
+import { ActiveChannels, ListenerCallbacks } from './_components/ActiveChannels'
 
 export default function Playground() {
   const status = useRealtimeStore((s) => s.status)
@@ -70,15 +67,15 @@ export default function Playground() {
     useRealtimeStore.getState().syncChannels()
   }
 
-  const addPostgresChangesListener = ({
-    channel,
-    event,
+  const addPostgresChangesListener: ListenerCallbacks['addPostgresChangesListener'] = (
+    name,
     schema,
+    event,
     table,
-  }: PostgresListenerValues) => {
-    const ch = useRealtimeStore.getState().channels.get(channel)
+  ) => {
+    const ch = useRealtimeStore.getState().channels.get(name)
     if (!ch) return
-    registerPostgresListener(ch, channel, event, schema, table)
+    registerPostgresListener(ch, name, event, schema, table)
     useRealtimeStore.getState().syncChannels()
   }
 
@@ -96,11 +93,12 @@ export default function Playground() {
         <Auth />
         <RealtimeChannels />
         <ActiveChannels
-          onAddBroadcastListener={addBroadcastListener}
-          onAddPresenceListener={addPresenceListener}
+          listenerCallbacks={{
+            addBroadcastListener,
+            addPresenceListener,
+            addPostgresChangesListener,
+          }}
         />
-        <PostgresChanges onSubmit={addPostgresChangesListener} />
-        <PresenceTrack />
       </div>
 
       <div className="flex flex-col gap-4 overflow-y-auto">
