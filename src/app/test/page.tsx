@@ -26,34 +26,32 @@ export default function TestsPage() {
 
   return (
     <TestSettingsProvider>
-      <div className="min-h-screen p-4 font-mono text-sm">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Test Runner</h1>
-            <div className="flex items-center gap-2">
-              <TestSettingsModal />
-              <Button
-                disabled={!!status}
-                variant={statusVariant(status)}
-                size="sm"
-                onClick={runAllTests}
-              >
-                {status || 'Run'}
-              </Button>
-            </div>
+      <div className="mx-auto flex h-full max-w-7xl flex-col overflow-y-hidden p-2 font-mono text-sm">
+        <div className="flex h-16 items-center justify-between pb-4">
+          <h1 className="text-2xl font-bold">Test Runner</h1>
+          <div className="flex items-center gap-2">
+            <TestSettingsModal />
+            <Button
+              disabled={!!status}
+              variant={statusVariant(status)}
+              size="sm"
+              onClick={runAllTests}
+            >
+              {status || 'Run'}
+            </Button>
           </div>
-          <div className="space-y-4">
-            {Object.entries(testCases).map(([k, v]) => (
-              <TestSection
-                key={k}
-                name={k}
-                tests={v}
-                ref={(el) => {
-                  testSuitesRefs.current.push(el as TestCaseHandle)
-                }}
-              />
-            ))}
-          </div>
+        </div>
+        <div className="h-[calc(100%-2rem)] space-y-4 overflow-y-auto">
+          {Object.entries(testCases).map(([k, v]) => (
+            <TestSection
+              key={k}
+              name={k}
+              tests={v}
+              ref={(el) => {
+                testSuitesRefs.current.push(el as TestCaseHandle)
+              }}
+            />
+          ))}
         </div>
       </div>
     </TestSettingsProvider>
