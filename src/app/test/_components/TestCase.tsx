@@ -22,7 +22,6 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
   const { supabaseUrl, supabaseKey } = useTestSettings()
 
   const handleRun = useCallback(async () => {
-    if (!supabaseKey || !supabaseUrl) return
     setStatus('Running')
     setMessage('')
     const res = await runTest(test, supabaseUrl, supabaseKey)

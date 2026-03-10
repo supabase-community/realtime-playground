@@ -58,12 +58,12 @@ const TestSection = forwardRef(({ name, tests }: TestSectionProps, ref) => {
         <CollapsibleContent>
           <CardContent>
             <div>
-              {tests.map((t) => (
+              {tests.map((t, i) => (
                 <TestCase
                   key={t.name}
                   test={t}
                   ref={(el) => {
-                    testCasesRefs.current.push(el as TestCaseHandle)
+                    testCasesRefs.current[i] = el as TestCaseHandle
                   }}
                 />
               ))}
