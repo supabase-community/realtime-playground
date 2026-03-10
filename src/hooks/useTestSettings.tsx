@@ -11,8 +11,8 @@ import {
 } from "@/lib/constants";
 
 interface TestSettings {
-  supabase_url: string;
-  supabase_key: string;
+  supabaseUrl: string;
+  supabaseKey: string;
 }
 
 interface TestSettingsContextValue extends TestSettings {
@@ -27,8 +27,8 @@ export function TestSettingsProvider({ children }: { children: ReactNode }) {
   const [supabaseKey, setSupabaseKey] = useState(NEXT_PUBLIC_SUPABASE_KEY);
 
   const value: TestSettingsContextValue = {
-    supabase_url: supabaseUrl,
-    supabase_key: supabaseKey,
+    supabaseUrl: supabaseUrl,
+    supabaseKey: supabaseKey,
     setSupabaseUrl: useCallback((url: string) => setSupabaseUrl(url), []),
     setSupabaseKey: useCallback((key: string) => setSupabaseKey(key), []),
   };

@@ -18,7 +18,7 @@ import SqlSnippet from './SqlSnippet'
 type Screen = 'settings' | 'setup'
 
 function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
-  const { supabase_url, supabase_key, setSupabaseUrl, setSupabaseKey } = useTestSettings()
+  const { supabaseUrl, supabaseKey, setSupabaseUrl, setSupabaseKey } = useTestSettings()
 
   const handlePaste = async () => {
     const text = await navigator.clipboard.readText()
@@ -27,7 +27,7 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
       const eqIndex = line.indexOf('=')
       if (eqIndex === -1) continue
       const prefix = line.slice(0, eqIndex)
-      const value = line.slice(eqIndex + 1).replace(/^["']|["']$/g, '')
+      const value = line.slice(eqIndex + 1)
       if (prefix.includes('URL')) setSupabaseUrl(value)
       if (prefix.includes('KEY')) setSupabaseKey(value)
     }
@@ -43,7 +43,7 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
           <Label htmlFor="supabase-url">Supabase URL</Label>
           <Input
             id="supabase-url"
-            value={supabase_url}
+            value={supabaseUrl}
             onChange={(e) => setSupabaseUrl(e.target.value)}
             placeholder="https://your-project.supabase.co"
           />
@@ -52,7 +52,7 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
           <Label htmlFor="supabase-key">Supabase Key</Label>
           <Input
             id="supabase-key"
-            value={supabase_key}
+            value={supabaseKey}
             onChange={(e) => setSupabaseKey(e.target.value)}
             placeholder="your-anon-key"
           />
