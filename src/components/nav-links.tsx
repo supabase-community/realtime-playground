@@ -1,7 +1,7 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const links = [
   { href: '/playground', label: 'Playground' },
@@ -10,21 +10,22 @@ const links = [
 
 export function NavLinks() {
   const pathname = usePathname()
-  const router = useRouter()
 
   return (
-    <div className="mb-4 flex gap-2">
+    <nav className="mb-4 flex gap-4">
       {links.map(({ href, label }) => (
-        <Button
+        <Link
           key={href}
-          size="sm"
-          className={pathname === href ? 'text-primary' : ''}
-          variant="ghost"
-          onClick={() => router.push(href)}
+          href={href}
+          className={`m-auto rounded-sm px-3 py-1.5 text-sm font-semibold ${
+            pathname === href
+              ? 'text-primary border-primary border'
+              : 'text-foreground border-foreground hover:border'
+          }`}
         >
           {label}
-        </Button>
+        </Link>
       ))}
-    </div>
+    </nav>
   )
 }
