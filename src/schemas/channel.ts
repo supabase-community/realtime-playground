@@ -9,6 +9,12 @@ export const channelConfigSchema = z.object({
   broadcast: z.object({
     ack: z.boolean().nonoptional(),
     self: z.boolean().nonoptional(),
+    replay: z
+      .object({
+        since: z.number({ error: 'Required' }).int().nonnegative().nonoptional(),
+        limit: z.number().int().positive().max(25).optional(),
+      })
+      .optional(),
   }),
   presence: z.object({
     enabled: z.boolean().nonoptional(),

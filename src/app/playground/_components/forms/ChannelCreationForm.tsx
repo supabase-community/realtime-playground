@@ -91,6 +91,54 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
               </div>
             )}
           />
+          <Controller
+            control={form.control}
+            name="config.broadcast.replay"
+            render={({ field }) => (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  disabled={disabled}
+                  checked={field.value !== undefined}
+                  onCheckedChange={(checked) => field.onChange(checked ? {} : undefined)}
+                />
+                <Label className="text-xs font-normal">Enable replay</Label>
+              </div>
+            )}
+          />
+          {replayEnabled && (
+            <div className="flex w-full items-end gap-2">
+              <div className="w-1/2 space-y-1">
+                {/* since is a unix timestamp (milliseconds since epoch) */}
+                <div className="flex justify-between">
+                  <Label className="text-xs">Since</Label>
+                  {errors.config?.broadcast?.replay?.since && (
+                    <p className="text-destructive text-right text-xs">
+                      {errors.config.broadcast.replay.since.message}
+                    </p>
+                  )}
+                </div>
+                <Input
+                  type="number"
+                  disabled={disabled}
+                  placeholder="e.g., 1741737600000"
+                  {...form.register('config.broadcast.replay.since', {
+                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                  })}
+                />
+              </div>
+              <div className="w-1/2 space-y-1">
+                <Label className="text-xs font-normal">Limit (Optional)</Label>
+                <Input
+                  type="number"
+                  disabled={disabled}
+                  placeholder="e.g., 10"
+                  {...form.register('config.broadcast.replay.limit', {
+                    setValueAs: (v) => (v === '' ? undefined : Number(v)),
+                  })}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2 rounded-md border border-green-600/30 bg-green-950/20 p-3">
