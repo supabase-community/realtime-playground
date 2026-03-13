@@ -1,63 +1,83 @@
 import { TestSuite } from '..'
-import { signInUser, waitFor } from '../helpers'
+import { signInUser, waitFor, waitForChannel } from '../helpers'
 import assert from 'assert'
 
 export default {
   'broadcast changes': [
     {
-      name: 'authenticated user receives insert broadcast change from a specific topic based on id',
+      name: "authenticated user receives INSERT broadcast change",
       body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
-        await supabase.realtime.setAuth()
 
-        const table = 'broadcast_changes'
-        const id = crypto.randomUUID()
-        const originalValue = crypto.randomUUID()
-        const updatedValue = crypto.randomUUID()
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let insertResult: any, updateResult: any, deleteResult: any
+        const id = crypto.randomUUID();
+        const value = crypto.randomUUID();
+        let result: any = null;
 
         const channel = supabase
-          .channel('topic:test', { config: { private: true } })
-          .on('broadcast', { event: 'INSERT' }, (res) => (insertResult = res))
-          .on('broadcast', { event: 'DELETE' }, (res) => (deleteResult = res))
-          .on('broadcast', { event: 'UPDATE' }, (res) => (updateResult = res))
-          .subscribe()
+          .channel("topic:test", { config: { private: true } })
+          .on("broadcast", { event: "INSERT" }, (res) => (result = res))
+          .subscribe();
 
-        await waitFor(() => channel.state == 'joined')
+        await waitForChannel(channel);
+        await supabase.from("broadcast_changes").insert({ value, id });
+        await waitFor(() => result);
 
-        // Test inserts
-        await supabase.from(table).insert({ value: originalValue, id })
-        await waitFor(() => !!insertResult)
-        assert.equal(insertResult.payload.record.id, id)
-        assert.equal(insertResult.payload.record.value, originalValue)
-        assert.equal(insertResult.payload.old_record, null)
-        assert.equal(insertResult.payload.operation, 'INSERT')
-        assert.equal(insertResult.payload.schema, 'public')
-        assert.equal(insertResult.payload.table, 'broadcast_changes')
-
-        // Test updates
-        await supabase.from(table).update({ value: updatedValue }).eq('id', id)
-        await waitFor(() => !!updateResult)
-        assert.equal(updateResult.payload.record.id, id)
-        assert.equal(updateResult.payload.record.value, updatedValue)
-        assert.equal(updateResult.payload.old_record.id, id)
-        assert.equal(updateResult.payload.old_record.value, originalValue)
-        assert.equal(updateResult.payload.operation, 'UPDATE')
-        assert.equal(updateResult.payload.schema, 'public')
-        assert.equal(updateResult.payload.table, 'broadcast_changes')
-
-        // Test deletes
-        await supabase.from(table).delete().eq('id', id)
-        await waitFor(() => !!deleteResult)
-        assert.equal(deleteResult.payload.record, null)
-        assert.equal(deleteResult.payload.old_record.id, id)
-        assert.equal(deleteResult.payload.old_record.value, updatedValue)
-        assert.equal(deleteResult.payload.operation, 'DELETE')
-        assert.equal(deleteResult.payload.schema, 'public')
-        assert.equal(deleteResult.payload.table, 'broadcast_changes')
-      },
+        assert.strictEqual(result.payload.record.id, id);
+        assert.strictEqual(result.payload.record.value, value);
+        assert.strictEqual(result.payload.old_record, null);
+        assert.strictEqual(result.payload.operation, "INSERT");
+        assert.strictEqual(result.payload.schema, "public");
+        assert.strictEqual(result.payload.table, "broadcast_changes");
+      }
     },
+    {
+      name: "authenticated user receives UPDATE broadcast change",
+      body: async (supabase) => {
+        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+
+        const id = crypto.randomUUID();
+        const originalValue = crypto.randomUUID();
+        const updatedValue = crypto.randomUUID();
+        await supabase.from("broadcast_changes").insert({ value: originalValue, id });
+        let result: any = null;
+
+        const channel = supabase
+          .channel("topic:test", { config: { private: true } })
+          .on("broadcast", { event: "UPDATE" }, (res) => (result = res))
+          .subscribe();
+
+        await waitForChannel(channel);
+        await supabase.from("broadcast_changes").update({ value: updatedValue }).eq("id", id);
+        await waitFor(() => result);
+
+        assert.strictEqual(result.payload.record.id, id);
+        assert.strictEqual(result.payload.record.value, updatedValue);
+        assert.strictEqual(result.payload.old_record.id, id);
+        assert.strictEqual(result.payload.old_record.value, originalValue);
+        assert.strictEqual(result.payload.operation, "UPDATE");
+        assert.strictEqual(result.payload.schema, "public");
+        assert.strictEqual(result.payload.table, "broadcast_changes");
+      }
+    },
+    {
+      name: "authenticated user receives DELETE broadcast change",
+      body: async (supabase) => {
+        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+
+        const id = crypto.randomUUID();
+        const value = crypto.randomUUID();
+        await supabase.from("broadcast_changes").insert({ value, id });
+        let result: any = null;
+
+        const channel = supabase
+          .channel("topic:test", { config: { private: true } })
+          .on("broadcast", { event: "DELETE" }, (res) => (result = res))
+          .subscribe();
+
+        await waitForChannel(channel);
+        await supabase.from("broadcast_changes").delete().eq("id", id);
+        await waitFor(() => result);
+      }
+    }
   ],
 } satisfies TestSuite
