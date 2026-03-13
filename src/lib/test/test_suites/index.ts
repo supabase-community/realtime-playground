@@ -8,12 +8,14 @@ import connection from './connection'
 import loadPostgresChanges from './load-postgres-changes'
 import loadBroadcastFromDb from './load-broadcast-from-db'
 import loadBroadcast from './load-broadcast'
+import loadBroadcastReplay from './load-broadcast-replay'
 
 export const testCases: TestSuite = {
   ...connection,
   ...loadPostgresChanges,
   ...loadBroadcastFromDb,
   ...loadBroadcast,
+  ...loadBroadcastReplay,
   ...broadcastExtension,
   ...presenceExtension,
   ...authorizationCheck,
