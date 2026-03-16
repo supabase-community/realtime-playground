@@ -5,6 +5,7 @@ import {
   executeUpdate,
   measureThroughput,
   signInUser,
+  waitFor,
   waitForPostgresChannel,
 } from '../helpers'
 import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
@@ -42,9 +43,11 @@ export default {
           .on(
             'postgres_changes',
             { event: 'INSERT', schema: 'public', table: 'pg_changes' },
-            (p) => {
+            async (p) => {
+              const now = performance.now();
+              await waitFor(() => Array.from(sendTimes.values()).length === LOAD_MESSAGES)
               const t = sendTimes.get(p.new.id)
-              if (t !== undefined) latencies.push(performance.now() - t)
+              if (t !== undefined) latencies.push(now - t)
             },
           )
           .subscribe()
