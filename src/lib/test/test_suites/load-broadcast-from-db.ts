@@ -1,6 +1,6 @@
 import { TestSuite } from '..'
-import { measureThroughput, signInUser, sleep, waitForChannel } from '../helpers'
-import { LOAD_DELIVERY_SLO, LOAD_MESSAGES, LOAD_SETTLE_MS } from './const'
+import { measureThroughput, signInUser, waitForChannel } from '../helpers'
+import { LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
 
 export default {
   'load-broadcast-from-db': [
@@ -29,14 +29,12 @@ export default {
           }),
         )
 
-        await sleep(LOAD_SETTLE_MS)
-
         await supabase
           .from('broadcast_changes')
           .delete()
           .in('id', [...sendTimes.keys()])
 
-        return measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
+        return await measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
       },
     },
   ],

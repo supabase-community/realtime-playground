@@ -1,6 +1,6 @@
 import { TestSuite } from '..'
 import { measureThroughput, sleep, waitForChannel } from '../helpers'
-import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES, LOAD_SETTLE_MS } from './const'
+import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
 
 export default {
   'load-broadcast': [
@@ -27,9 +27,7 @@ export default {
           await channel.send({ type: 'broadcast', event, payload: { seq: i } })
         }
 
-        await sleep(LOAD_SETTLE_MS)
-
-        return measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
+        return await measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
       },
     },
     {
@@ -67,9 +65,7 @@ export default {
           }),
         )
 
-        await sleep(LOAD_SETTLE_MS)
-
-        return measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
+        return await measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
       },
     },
   ],

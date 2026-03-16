@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { TestSuite } from '..'
-import { measureThroughput, sleep, waitForChannel } from '../helpers'
-import { LOAD_DELIVERY_SLO, LOAD_SETTLE_MS } from './const'
+import { measureThroughput, waitForChannel } from '../helpers'
+import { LOAD_DELIVERY_SLO } from './const'
 
 const CLIENTS = 10
 
@@ -52,9 +52,7 @@ export default {
             }),
           )
 
-          await sleep(LOAD_SETTLE_MS)
-
-          return measureThroughput(latencies, CLIENTS, LOAD_DELIVERY_SLO)
+          return await measureThroughput(latencies, CLIENTS, LOAD_DELIVERY_SLO)
         } finally {
           await Promise.all(senders.map((c) => c.realtime.disconnect()))
         }

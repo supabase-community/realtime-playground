@@ -14,14 +14,19 @@ export default function TestsPage() {
 
   const runAllTests = async () => {
     setStatus('Running')
-    const res = await Promise.all(
-      testSuitesRefs.current.filter((e) => !!e).map((e) => e.handleRun()),
-    )
-    if (res.every((e) => e === 'Passed')) {
-      setStatus('Passed')
-    } else {
-      setStatus('Failed')
+    // Copy all values so tests do not rerun indefinetly
+    const cases = [...testSuitesRefs.current]
+    let failed = false
+    for (const testCase of cases) {
+      if (testCase) {
+        if ((await testCase.handleRun()) == 'Failed') {
+          failed = true
+        }
+      }
     }
+    const res = failed ? 'Failed' : 'Passed'
+    setStatus(res)
+    return res
   }
 
   return (
@@ -42,13 +47,13 @@ export default function TestsPage() {
           </div>
         </div>
         <div className="h-[calc(100%-2rem)] space-y-4 overflow-y-auto">
-          {Object.entries(testCases).map(([k, v]) => (
+          {Object.entries(testCases).map(([k, v], i) => (
             <TestSection
               key={k}
               name={k}
               tests={v}
               ref={(el) => {
-                testSuitesRefs.current.push(el as TestCaseHandle)
+                testSuitesRefs.current[i] = el as TestCaseHandle
               }}
             />
           ))}

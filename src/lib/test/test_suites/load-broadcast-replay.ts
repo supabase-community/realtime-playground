@@ -1,6 +1,6 @@
 import { TestSuite } from '..'
-import { measureThroughput, signInUser, sleep, waitForChannel } from '../helpers'
-import { LOAD_DELIVERY_SLO, LOAD_MESSAGES, LOAD_SETTLE_MS } from './const'
+import { measureThroughput, signInUser, waitForChannel } from '../helpers'
+import { LOAD_DELIVERY_SLO, LOAD_MESSAGES,  } from './const'
 
 export default {
   'load-broadcast-replay': [
@@ -33,9 +33,8 @@ export default {
           .subscribe()
 
         await waitForChannel(receiver)
-        await sleep(LOAD_SETTLE_MS)
 
-        return measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
+        return await measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
       },
     },
   ],

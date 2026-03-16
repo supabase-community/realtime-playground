@@ -1,6 +1,6 @@
 import { TestSuite } from '..'
-import { measureThroughput, sleep, waitForChannel } from '../helpers'
-import { BROADCAST_CONFIG } from './const'
+import { measureThroughput, waitForChannel } from '../helpers'
+import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
 
 export default {
   connection: [
@@ -17,10 +17,6 @@ export default {
     {
       name: 'broadcast message throughput',
       body: async (supabase) => {
-        const MESSAGES = 50
-        const SETTLE_MS = 3000
-        const DELIVERY_SLO = 99
-
         const topic = 'topic:' + crypto.randomUUID()
         const event = 'load'
         const sendTimes = new Map<number, number>()
@@ -36,13 +32,12 @@ export default {
 
         await waitForChannel(channel)
 
-        for (let i = 0; i < MESSAGES; i++) {
+        for (let i = 0; i < LOAD_MESSAGES; i++) {
           sendTimes.set(i, performance.now())
           await channel.send({ type: 'broadcast', event, payload: { seq: i } })
         }
 
-        await sleep(SETTLE_MS)
-        return measureThroughput(latencies, MESSAGES, DELIVERY_SLO)
+        return await measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
       },
     },
   ],
