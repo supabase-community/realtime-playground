@@ -100,17 +100,22 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
       return
     }
 
+    let ch: RealtimeChannel
+
     try {
-      const ch = client.channel(name, config ? { config } : undefined)
-      ch.on('system', {}, (payload) => {
-        const msg = `[SYSTEM] ${payload.message}`
-        if (payload.status === 'ok') toast.success(msg)
-        else toast.error(msg)
-      })
+      ch = client.channel(name, config ? { config } : undefined)
     } catch (e) {
-      toast.error(`Error while creating channel: ${e}`)
+      toast.error(
+        `Error while creating channel: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
+      )
+      return
     }
 
+    ch.on('system', {}, (payload) => {
+      const msg = `[SYSTEM] ${payload.message}`
+      if (payload.status === 'ok') toast.success(msg)
+      else toast.error(msg)
+    })
     syncChannels()
   },
 
