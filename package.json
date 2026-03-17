@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@supabase/supabase-js": "https://pkg.pr.new/@supabase/supabase-js@2119",
+    "@supabase/supabase-js": "2.100.0-canary.0",
     "assert": "^2.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
