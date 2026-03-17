@@ -1,7 +1,7 @@
 'use client'
 
 import { testCases } from '@/lib/test'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Status, statusVariant, type TestCaseHandle } from './_components/helpers'
 import TestSection from './_components/TestSection'
@@ -12,16 +12,25 @@ export default function TestsPage() {
   const [status, setStatus] = useState<Status>(null)
   const testSuitesRefs = useRef<(TestCaseHandle | null)[]>([])
 
-  const runAllTests = async () => {
+  const prepare = useCallback(() => {
     setStatus('Running')
-    const res = await Promise.all(
-      testSuitesRefs.current.filter((e) => !!e).map((e) => e.handleRun()),
-    )
-    if (res.every((e) => e === 'Passed')) {
-      setStatus('Passed')
-    } else {
-      setStatus('Failed')
+    for (const c of testSuitesRefs.current) {
+      c?.prepare()
     }
+  }, [])
+
+  const runAllTests = async () => {
+    prepare()
+    let res: 'Passed' | 'Failed' = 'Passed'
+    for (const testCase of testSuitesRefs.current) {
+      if (testCase) {
+        if ((await testCase.handleRun()) === 'Failed') {
+          res = 'Failed'
+        }
+      }
+    }
+    setStatus(res)
+    return res
   }
 
   return (
@@ -42,13 +51,13 @@ export default function TestsPage() {
           </div>
         </div>
         <div className="h-[calc(100%-2rem)] space-y-4 overflow-y-auto">
-          {Object.entries(testCases).map(([k, v]) => (
+          {Object.entries(testCases).map(([k, v], i) => (
             <TestSection
               key={k}
               name={k}
               tests={v}
               ref={(el) => {
-                testSuitesRefs.current.push(el as TestCaseHandle)
+                testSuitesRefs.current[i] = el as TestCaseHandle
               }}
             />
           ))}

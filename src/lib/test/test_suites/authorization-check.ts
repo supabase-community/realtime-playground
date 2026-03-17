@@ -1,27 +1,22 @@
-import { createClient } from '@supabase/supabase-js'
-import type { TestSuite } from '.'
-import { signInUser, waitFor } from './helpers'
+import type { TestSuite } from '..'
+import { signInUser, waitFor, waitForChannel } from '../helpers'
 import assert from 'assert'
-
-const realtime = { heartbeatIntervalMs: 5000, timeout: 5000 }
 
 export default {
   'authorization check': [
     {
       name: 'user using private channel cannot connect if does not have enough permissions',
-      body: async (url, token) => {
-        const supabase = createClient(url, token, { realtime })
-
+      body: async (supabase) => {
         let errMessage: string | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
         const channel = supabase
           .channel(topic, { config: { private: true } })
           .subscribe((status, err) => {
-            if (status == 'CHANNEL_ERROR') errMessage = err ? err.message : null
+            if (status === 'CHANNEL_ERROR') errMessage = err ? err.message : null
           })
 
-        await waitFor(() => channel.state == 'errored')
+        await waitFor(() => channel.state === 'errored')
 
         assert.equal(
           errMessage,
@@ -31,10 +26,8 @@ export default {
     },
     {
       name: 'user using private channel can connect if they have enough permissions',
-      body: async (url, token) => {
-        const supabase = createClient(url, token, { realtime })
+      body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
-        await supabase.realtime.setAuth()
 
         const topic = 'topic:' + crypto.randomUUID()
         let connected = false
@@ -42,9 +35,10 @@ export default {
         const channel = supabase
           .channel(topic, { config: { private: true } })
           .subscribe((status: string) => {
-            if (status == 'SUBSCRIBED') connected = true
+            if (status === 'SUBSCRIBED') connected = true
           })
-        await waitFor(() => channel.state == 'joined')
+
+        await waitForChannel(channel)
 
         assert.equal(connected, true)
       },

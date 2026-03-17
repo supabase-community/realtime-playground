@@ -1,18 +1,21 @@
-import { createClient } from '@supabase/supabase-js'
-import { TestSuite } from '.'
-import { executeDelete, executeInsert, executeUpdate, signInUser, waitFor } from './helpers'
+import { TestSuite } from '..'
+import {
+  executeDelete,
+  executeInsert,
+  executeUpdate,
+  signInUser,
+  waitFor,
+  waitForChannel,
+  waitForPostgresChannel,
+} from '../helpers'
 import assert from 'assert'
-
-const realtime = { heartbeatIntervalMs: 5000, timeout: 5000 }
-
-const config = { config: { broadcast: { self: true } } }
+import { BROADCAST_CONFIG } from './const'
 
 export default {
   'postgres changes extension': [
     {
       name: 'user is able to receive INSERT only events from a subscribed table with filter applied',
-      body: async (url, token) => {
-        const supabase = createClient(url, token, { realtime })
+      body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
@@ -24,7 +27,7 @@ export default {
         await executeInsert(supabase, 'dummy')
 
         const channel = supabase
-          .channel(topic, config)
+          .channel(topic, BROADCAST_CONFIG)
           .on(
             'postgres_changes',
             {
@@ -38,13 +41,13 @@ export default {
           .on('system', '*', ({ status }) => (subscribed = status))
           .subscribe()
 
-        await waitFor(() => channel.state == 'joined')
-        await waitFor(() => subscribed == 'ok')
+        await waitForChannel(channel)
+        await waitFor(() => subscribed === 'ok')
 
         await executeInsert(supabase, 'pg_changes')
         await executeInsert(supabase, 'dummy')
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'INSERT')
         assert.equal(result.new.id, previousId + 1)
@@ -52,8 +55,7 @@ export default {
     },
     {
       name: 'user is able to receive UPDATE only events from a subscribed table with filter applied',
-      body: async (url, token) => {
-        const supabase = createClient(url, token, { realtime })
+      body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
@@ -66,7 +68,7 @@ export default {
         const dummyId = await executeInsert(supabase, 'dummy')
 
         const channel = supabase
-          .channel(topic, config)
+          .channel(topic, BROADCAST_CONFIG)
           .on(
             'postgres_changes',
             {
@@ -80,14 +82,14 @@ export default {
           .on('system', '*', ({ status }) => (subscribed = status))
           .subscribe()
 
-        await waitFor(() => channel.state == 'joined')
-        await waitFor(() => subscribed == 'ok')
+        await waitForChannel(channel)
+        await waitFor(() => subscribed === 'ok')
 
         executeUpdate(supabase, 'pg_changes', mainId)
         executeUpdate(supabase, 'pg_changes', fakeId)
         executeUpdate(supabase, 'dummy', dummyId)
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'UPDATE')
         assert.equal(result.new.id, mainId)
@@ -95,8 +97,7 @@ export default {
     },
     {
       name: 'user is able to receive DELETE only events from a subscribed table with filter applied',
-      body: async (url, token) => {
-        const supabase = createClient(url, token, { realtime })
+      body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
@@ -109,7 +110,7 @@ export default {
         const dummyId = await executeInsert(supabase, 'dummy')
 
         const channel = supabase
-          .channel(topic, config)
+          .channel(topic, BROADCAST_CONFIG)
           .on(
             'postgres_changes',
             {
@@ -123,17 +124,71 @@ export default {
           .on('system', '*', ({ status }) => (subscribed = status))
           .subscribe()
 
-        await waitFor(() => channel.state == 'joined')
-        await waitFor(() => subscribed == 'ok')
+        await waitForChannel(channel)
+        await waitFor(() => subscribed === 'ok')
 
         executeDelete(supabase, 'pg_changes', mainId)
         executeDelete(supabase, 'pg_changes', fakeId)
         executeDelete(supabase, 'dummy', dummyId)
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'DELETE')
         assert.equal(result.old.id, mainId)
+      },
+    },
+    {
+      name: 'user receives INSERT, UPDATE and DELETE concurrently',
+      body: async (supabase) => {
+        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+        let insertResult: unknown = null,
+          updateResult: unknown = null,
+          deleteResult: unknown = null
+
+        const insertId = await executeInsert(supabase, 'pg_changes')
+        const updateId = await executeInsert(supabase, 'pg_changes')
+        const deleteId = await executeInsert(supabase, 'pg_changes')
+
+        const channel = supabase
+          .channel('topic:' + crypto.randomUUID(), BROADCAST_CONFIG)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'pg_changes',
+              filter: `id=eq.${insertId + 3}`,
+            },
+            (p) => (insertResult = p),
+          )
+          .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'pg_changes', filter: `id=eq.${updateId}` },
+            (p) => (updateResult = p),
+          )
+          .on(
+            'postgres_changes',
+            { event: 'DELETE', schema: 'public', table: 'pg_changes', filter: `id=eq.${deleteId}` },
+            (p) => (deleteResult = p),
+          )
+          .subscribe()
+
+        await waitForPostgresChannel(channel)
+
+        await Promise.all([
+          executeInsert(supabase, 'pg_changes'),
+          executeUpdate(supabase, 'pg_changes', updateId),
+          executeDelete(supabase, 'pg_changes', deleteId),
+        ])
+        await Promise.all([
+          waitFor(() => insertResult),
+          waitFor(() => updateResult),
+          waitFor(() => deleteResult),
+        ])
+
+        assert.strictEqual(insertResult.eventType, 'INSERT')
+        assert.strictEqual(updateResult.eventType, 'UPDATE')
+        assert.strictEqual(deleteResult.eventType, 'DELETE')
       },
     },
   ],
