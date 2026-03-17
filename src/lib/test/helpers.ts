@@ -31,8 +31,8 @@ export const waitForChannel = async (channel: RealtimeChannel) => {
 
 export const waitForPostgresChannel = async (channel: RealtimeChannel) => {
   let systemOk = false
-  channel.on('system', '*', ({ status }: { status: string }) => {
-    if (status === 'ok') systemOk = true
+  channel.on('system', '*', ({ status, extension }: { status: string; extension: string }) => {
+    if (status === 'ok' && extension === 'postgres_changes') systemOk = true
   })
   await waitForChannel(channel)
   const result = await waitFor(() => systemOk)

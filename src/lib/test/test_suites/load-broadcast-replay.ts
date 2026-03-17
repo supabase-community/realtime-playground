@@ -22,13 +22,13 @@ export default {
         )
 
         const latencies: number[] = []
-        const replayStart = Date.now()
+        const replayStart = performance.now()
         const receiver = supabase
           .channel(topic, {
             config: { private: true, broadcast: { replay: { since, limit: 25 } } },
           })
           .on('broadcast', { event }, () => {
-            latencies.push(Date.now() - replayStart)
+            latencies.push(performance.now() - replayStart)
           })
           .subscribe()
 

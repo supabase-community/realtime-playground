@@ -26,7 +26,7 @@ export default {
         await waitForChannel(channel)
 
         const res = await channel.track(expectedPayload, { timeout: 5000 })
-        if (res == 'timed out') error = res
+        if (res === 'timed out') error = res
 
         await waitFor(() => result.length > 0)
 
@@ -63,7 +63,7 @@ export default {
 
         await waitForChannel(channel)
         const res = await channel.track(expectedPayload, { timeout: 5000 })
-        if (res == 'timed out') error = res
+        if (res === 'timed out') error = res
 
         await waitFor(() => result.length > 0)
 

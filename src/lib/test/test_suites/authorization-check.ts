@@ -13,10 +13,10 @@ export default {
         const channel = supabase
           .channel(topic, { config: { private: true } })
           .subscribe((status, err) => {
-            if (status == 'CHANNEL_ERROR') errMessage = err ? err.message : null
+            if (status === 'CHANNEL_ERROR') errMessage = err ? err.message : null
           })
 
-        await waitFor(() => channel.state == 'errored')
+        await waitFor(() => channel.state === 'errored')
 
         assert.equal(
           errMessage,
@@ -35,7 +35,7 @@ export default {
         const channel = supabase
           .channel(topic, { config: { private: true } })
           .subscribe((status: string) => {
-            if (status == 'SUBSCRIBED') connected = true
+            if (status === 'SUBSCRIBED') connected = true
           })
 
         await waitForChannel(channel)

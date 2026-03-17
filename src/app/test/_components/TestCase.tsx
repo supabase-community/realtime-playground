@@ -22,27 +22,27 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
   const [open, setOpen] = useState(true)
   const { supabaseUrl, supabaseKey } = useTestSettings()
 
-  const setRunning = () => {
+  const prepare = useCallback(() => {
     setStatus('Running')
     setMessage('')
-  }
+  }, [])
 
   const handleRun = useCallback(async () => {
-    setRunning()
+    prepare()
     const res = await runTest(test, supabaseUrl, supabaseKey)
     setMessage(res.message || '')
-    if (res.status == 'passed') {
+    if (res.status === 'passed') {
       setStatus('Passed')
       return 'Passed'
     } else {
       setStatus('Failed')
       return 'Failed'
     }
-  }, [test, supabaseUrl, supabaseKey])
+  }, [test, supabaseUrl, supabaseKey, prepare])
 
   useImperativeHandle(ref, () => ({
     handleRun,
-    setRunning,
+    prepare,
   }))
 
   return (
@@ -69,7 +69,7 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
             <pre
               className={cn(
                 'mt-1 rounded px-2 py-1 font-mono text-xs break-all',
-                status == 'Passed'
+                status === 'Passed'
                   ? 'text-primary bg-primary/10'
                   : 'text-destructive bg-destructive/10',
               )}

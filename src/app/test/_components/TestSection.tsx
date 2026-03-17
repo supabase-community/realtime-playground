@@ -1,5 +1,5 @@
 import { Test } from '@/lib/test'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react'
 import { statusVariant, type Status, type TestCaseHandle } from './helpers'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,32 +17,30 @@ const TestSection = forwardRef(({ name, tests }: TestSectionProps, ref) => {
   const [status, setStatus] = useState<Status>(null)
   const testCasesRefs = useRef<(TestCaseHandle | null)[]>([])
 
-  const setRunning = () => {
+  const prepare = useCallback(() => {
     setStatus('Running')
     for (const c of testCasesRefs.current) {
-      c?.setRunning()
+      c?.prepare()
     }
-  }
+  }, [])
 
   const runAllTests = async () => {
-    setRunning()
-    // Copy all values so tests do not rerun indefinetly
-    let failed = false
+    prepare()
+    let res: 'Passed' | 'Failed' = 'Passed'
     for (const testCase of testCasesRefs.current) {
       if (testCase) {
-        if ((await testCase.handleRun()) == 'Failed') {
-          failed = true
+        if ((await testCase.handleRun()) === 'Failed') {
+          res = 'Failed'
         }
       }
     }
-    const res = failed ? 'Failed' : 'Passed'
     setStatus(res)
     return res
   }
 
   useImperativeHandle(ref, () => ({
     handleRun: runAllTests,
-    setRunning,
+    prepare,
   }))
 
   return (

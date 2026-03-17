@@ -26,7 +26,7 @@ export default {
           payload: expectedPayload,
         })
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
         assert.deepEqual(result, expectedPayload)
       },
     },
@@ -47,7 +47,7 @@ export default {
 
         await supabase.channel(topic, BROADCAST_CONFIG).httpSend(event, expectedPayload)
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
         assert.deepEqual(result, expectedPayload)
       },
     },

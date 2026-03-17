@@ -44,7 +44,7 @@ export default {
             'postgres_changes',
             { event: 'INSERT', schema: 'public', table: 'pg_changes' },
             async (p) => {
-              const now = performance.now();
+              const now = performance.now()
               await waitFor(() => Array.from(sendTimes.values()).length === LOAD_MESSAGES)
               const t = sendTimes.get(p.new.id)
               if (t !== undefined) latencies.push(now - t)

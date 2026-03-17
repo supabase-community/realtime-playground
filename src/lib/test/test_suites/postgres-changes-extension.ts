@@ -42,12 +42,12 @@ export default {
           .subscribe()
 
         await waitForChannel(channel)
-        await waitFor(() => subscribed == 'ok')
+        await waitFor(() => subscribed === 'ok')
 
         await executeInsert(supabase, 'pg_changes')
         await executeInsert(supabase, 'dummy')
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'INSERT')
         assert.equal(result.new.id, previousId + 1)
@@ -83,13 +83,13 @@ export default {
           .subscribe()
 
         await waitForChannel(channel)
-        await waitFor(() => subscribed == 'ok')
+        await waitFor(() => subscribed === 'ok')
 
         executeUpdate(supabase, 'pg_changes', mainId)
         executeUpdate(supabase, 'pg_changes', fakeId)
         executeUpdate(supabase, 'dummy', dummyId)
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'UPDATE')
         assert.equal(result.new.id, mainId)
@@ -125,13 +125,13 @@ export default {
           .subscribe()
 
         await waitForChannel(channel)
-        await waitFor(() => subscribed == 'ok')
+        await waitFor(() => subscribed === 'ok')
 
         executeDelete(supabase, 'pg_changes', mainId)
         executeDelete(supabase, 'pg_changes', fakeId)
         executeDelete(supabase, 'dummy', dummyId)
 
-        await waitFor(() => result != null)
+        await waitFor(() => result !== null)
 
         assert.equal(result.eventType, 'DELETE')
         assert.equal(result.old.id, mainId)
