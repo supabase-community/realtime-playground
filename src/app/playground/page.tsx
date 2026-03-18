@@ -19,7 +19,7 @@ import { useSupabaseStore } from '@/store/supabaseStore'
 import { ActiveChannels, ListenerCallbacks } from './_components/ActiveChannels'
 
 export default function Playground() {
-  const [status, setStatus] = useState<SocketStatus | undefined>('closed')
+  const [status, setStatus] = useState<SocketStatus | undefined>()
 
   const { logs, addLog, clear: clearLogs } = useLogMessages()
 
@@ -44,7 +44,9 @@ export default function Playground() {
   useEffect(() => {
     useSupabaseStore.getState().init()
     const interval = setInterval(() => {
-      setStatus(useRealtimeStore.getState().client?.connectionState() as SocketStatus)
+      const client = useRealtimeStore.getState().client
+      const status = client ? (client.connectionState() as SocketStatus) : undefined
+      setStatus(status)
     }, 500)
     return () => {
       clearInterval(interval)
