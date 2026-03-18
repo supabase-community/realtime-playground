@@ -27,9 +27,13 @@ export function LoginForm({ onSubmit }: Props) {
           <Label htmlFor="login-form-email">Email</Label>
           {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           <Label htmlFor="login-form-password">Password</Label>
-          {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-destructive items-end text-right text-xs">
+              {errors.password.message}
+            </p>
+          )}
         </div>
         <Input id="login-form-email" placeholder="user@example.com" {...form.register('email')} />
 

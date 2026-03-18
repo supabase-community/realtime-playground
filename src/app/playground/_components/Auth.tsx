@@ -4,6 +4,7 @@ import { LoginValues } from '@/schemas/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoginForm } from './forms'
 import { Button } from '@/components/ui/button'
+import { CopyButton } from '@/components/copy'
 
 export default function Auth() {
   const { userId, email: userEmail, token, login, logout } = useSupabaseStore()
@@ -35,9 +36,12 @@ export default function Auth() {
               <p className="text-muted-foreground text-xs">
                 <span className="font-semibold">Email:</span> {userEmail}
               </p>
-              <p className="text-xs wrap-break-word">
-                <span className="font-semibold underline">Token: </span> {token}
-              </p>
+              {token && (
+                <p className="flex items-center text-xs wrap-break-word">
+                  <span className="font-semibold">Copy Token:</span>
+                  <CopyButton className="hover:text-primary" content={token} />
+                </p>
+              )}
             </div>
             <Button variant="destructive" className="w-full" onClick={logout}>
               Log Out

@@ -1,4 +1,4 @@
-import { Check, Copy } from 'lucide-react'
+import { CopyButton } from '@/components/copy'
 import { useEffect, useState } from 'react'
 import { codeToHtml } from 'shiki'
 
@@ -89,27 +89,18 @@ CREATE TRIGGER broadcast_changes_for_table_public_broadcast_changes_trigger
 INSERT INTO "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") VALUES ('00000000-0000-0000-0000-000000000000', '93c8bc43-c330-4702-aef2-4ba2c298950a', 'authenticated', 'authenticated', 'filipe@supabase.io', '$2a$10$WQ4tbkMVuS2OUmkX.LRC0uRwH6bU39CbI5bdHuLi82UXhUsjhrLP.', '2025-04-03 03:51:28.207805+00', null, '', '2025-04-03 03:50:59.085609+00', '', null, '', '', null, '2025-04-03 08:01:19.813327+00', '{"provider": "email", "providers": ["email"]}', '{"sub": "92c8bc43-c330-4702-aef2-4ba2c298950a", "email": "filipe@supabase.io", "email_verified": true, "phone_verified": false}', null, '2025-04-03 03:50:59.038087+00', '2025-04-03 22:09:10.979685+00', null, null, '', '', null, '', '0', null, '', null, 'false', null, 'false');`
 
 const SqlSnippet = () => {
-  const [copied, setCopied] = useState(false)
   const [highlighted, setHighlighted] = useState('')
 
   useEffect(() => {
     codeToHtml(sql, { lang: 'sql', theme: 'github-dark' }).then(setHighlighted)
   }, [])
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(sql)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
   return (
     <div className="relative">
-      <button
-        onClick={handleCopy}
-        className="text-muted-foreground hover:text-foreground absolute top-2 right-2 z-10 rounded p-1 text-xs"
-      >
-        {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      </button>
+      <CopyButton
+        content={sql}
+        className="text-muted-foreground hover:text-foreground absolute top-2 right-2 z-10"
+      />
       {highlighted ? (
         <div
           className="max-h-80 overflow-hidden rounded-md text-xs [&_pre]:h-full [&_pre]:max-h-80 [&_pre]:overflow-y-auto [&_pre]:p-4 [&_pre]:break-words [&_pre]:whitespace-pre-wrap"
