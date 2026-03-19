@@ -17,7 +17,12 @@ type Props = {
 }
 
 export function ChannelCreationForm({ onSubmit, disabled }: Props) {
-  const form = useForm<ChannelFormInput, unknown, ChannelFormValues>({
+  const {
+    handleSubmit,
+    control,
+    register,
+    formState: { errors },
+  } = useForm<ChannelFormInput, unknown, ChannelFormValues>({
     resolver: zodResolver(channelFormSchema),
     defaultValues: {
       name: 'test',
@@ -30,22 +35,21 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
   })
 
   const presenceEnabled = useWatch({
-    control: form.control,
+    control: control,
     name: 'config.presence.enabled',
   })
 
-  const replayEnabled = !!useWatch({
-    control: form.control,
+  const replayEnabled = useWatch({
+    control: control,
     name: 'config.broadcast.replay',
     defaultValue: undefined,
+    compute: (data?: object) => !!data,
   })
-
-  const errors = form.formState.errors
 
   return (
     <form
       id="create-channel-form"
-      onSubmit={form.handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-4"
     >
       <div className="flex flex-col gap-2">
@@ -57,12 +61,12 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
           <Input
             disabled={disabled}
             placeholder="e.g., my-room, game-lobby, chat-1"
-            {...form.register('name')}
+            {...register('name')}
           />
         </div>
 
         <Controller
-          control={form.control}
+          control={control}
           name="config.private"
           render={({ field }) => (
             <div className="flex gap-2">
@@ -80,7 +84,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
         <div className="space-y-2 rounded-md border border-blue-600/30 bg-blue-950/20 p-3">
           <p className="text-xs font-semibold text-blue-400">Broadcast Configuration</p>
           <Controller
-            control={form.control}
+            control={control}
             name="config.broadcast.ack"
             render={({ field }) => (
               <div className="flex items-center gap-2">
@@ -94,7 +98,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
             )}
           />
           <Controller
-            control={form.control}
+            control={control}
             name="config.broadcast.self"
             render={({ field }) => (
               <div className="flex items-center gap-2">
@@ -108,7 +112,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
             )}
           />
           <Controller
-            control={form.control}
+            control={control}
             name="config.broadcast.replay"
             render={({ field }) => (
               <div className="flex items-center gap-2">
@@ -135,7 +139,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
                   )}
                 </div>
                 <Controller
-                  control={form.control}
+                  control={control}
                   name="config.broadcast.replay.since"
                   render={({ field }) => (
                     <DateTimePicker
@@ -147,12 +151,19 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
                 />
               </div>
               <div className="w-1/2 space-y-1">
-                <Label className="text-xs font-normal">Limit (Optional)</Label>
+                <div className="flex justify-between">
+                  <Label className="text-xs font-normal">Limit (Optional)</Label>
+                  {errors.config?.broadcast?.replay?.limit && (
+                    <p className="text-destructive text-right text-xs">
+                      {errors.config.broadcast.replay.limit.message}
+                    </p>
+                  )}
+                </div>
                 <Input
                   type="number"
                   disabled={disabled}
                   placeholder="e.g., 10"
-                  {...form.register('config.broadcast.replay.limit', {
+                  {...register('config.broadcast.replay.limit', {
                     setValueAs: transformOptionalNumber,
                   })}
                 />
@@ -164,7 +175,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
         <div className="space-y-2 rounded-md border border-green-600/30 bg-green-950/20 p-3">
           <p className="text-xs font-semibold text-green-400">Presence Configuration</p>
           <Controller
-            control={form.control}
+            control={control}
             name="config.presence.enabled"
             render={({ field }) => (
               <div className="flex items-center gap-2">
@@ -183,7 +194,7 @@ export function ChannelCreationForm({ onSubmit, disabled }: Props) {
               <Input
                 disabled={disabled}
                 placeholder="e.g., user-id"
-                {...form.register('config.presence.key')}
+                {...register('config.presence.key')}
               />
             </div>
           )}

@@ -1,5 +1,6 @@
 import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { positiveIntSchema } from './common'
 // ---------------------------------------------------------------------------
 // Channel creation form schema
 // ---------------------------------------------------------------------------
@@ -13,11 +14,11 @@ export const channelConfigSchema = z.object({
       .object({
         since: z
           .date({ error: 'Required' })
-          .refine((d) => d <= new Date(), { message: 'Cannot be in the future' })
+          .refine((d) => d <= new Date(), { error: 'Cannot be in the future' })
           .transform((d) => d.getTime())
           .nonoptional(),
         // max limit: https://supabase.com/docs/guides/realtime/broadcast?queryGroups=language&language=js#broadcast-replay
-        limit: z.number().int().positive().max(25).optional(),
+        limit: positiveIntSchema.max(25, { error: 'Max 25' }).optional(),
       })
       .optional(),
   }),
