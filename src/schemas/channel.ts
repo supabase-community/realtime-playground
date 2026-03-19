@@ -1,5 +1,6 @@
 import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
 import { z } from 'zod'
+import { positiveIntSchema } from './common'
 // ---------------------------------------------------------------------------
 // Channel creation form schema
 // ---------------------------------------------------------------------------
@@ -9,6 +10,17 @@ export const channelConfigSchema = z.object({
   broadcast: z.object({
     ack: z.boolean().nonoptional(),
     self: z.boolean().nonoptional(),
+    replay: z
+      .object({
+        since: z
+          .date({ error: 'Required' })
+          .refine((d) => d <= new Date(), { error: 'Cannot be in the future' })
+          .transform((d) => d.getTime())
+          .nonoptional(),
+        // max limit: https://supabase.com/docs/guides/realtime/broadcast?queryGroups=language&language=js#broadcast-replay
+        limit: positiveIntSchema.max(25, { error: 'Max 25' }).optional(),
+      })
+      .optional(),
   }),
   presence: z.object({
     enabled: z.boolean().nonoptional(),
@@ -18,28 +30,11 @@ export const channelConfigSchema = z.object({
 
 export const channelFormSchema = z.object({
   name: z.string().min(1, 'Channel name is required').nonoptional(),
-  config: channelConfigSchema
-    .default({
-      private: false,
-      broadcast: { ack: true, self: true },
-      presence: { enabled: true },
-    })
-    .nonoptional(),
+  config: channelConfigSchema.nonoptional(),
 })
 
 export type ChannelFormValues = z.infer<typeof channelFormSchema>
-export type ChannelConfigValues = z.infer<typeof channelConfigSchema>
-
-// ---------------------------------------------------------------------------
-// Broadcast send form schema
-// ---------------------------------------------------------------------------
-
-export const broadcastSendSchema = z.object({
-  event: z.string().min(1, 'Event is required').default('message').nonoptional(),
-  message: z.string().optional(),
-})
-
-export type BroadcastSendValues = z.infer<typeof broadcastSendSchema>
+export type ChannelFormInput = z.input<typeof channelFormSchema>
 
 // ---------------------------------------------------------------------------
 // Postgres listener schema

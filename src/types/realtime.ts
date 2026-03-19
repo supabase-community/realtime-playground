@@ -1,4 +1,4 @@
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimeClientOptions, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 // ---------------------------------------------------------------------------
 // Broadcast
@@ -46,3 +46,5 @@ export type LogEntry = {
   message: string
   data: Record<string, unknown> | undefined
 }
+
+export type RealtimeLogger = RealtimeClientOptions['logger']

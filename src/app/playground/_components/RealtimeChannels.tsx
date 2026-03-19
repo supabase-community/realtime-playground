@@ -1,15 +1,16 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useRealtimeStore } from '@/store/realtimeStore'
-import type { ChannelFormValues } from '@/schemas/channel'
+import { useClientCreated, useRealtimeStore } from '@/store/realtimeStore'
 import { ChannelCreationForm } from './forms/ChannelCreationForm'
+import type { ChannelFormValues } from '@/schemas/channel'
 
 export function RealtimeChannels() {
-  const handleCreate = ({ name, config }: ChannelFormValues) =>
-    useRealtimeStore.getState().createChannel(name, config)
+  const handleCreate = ({ name, config }: ChannelFormValues) => {
+    useRealtimeStore.getState().createChannel(name, { config })
+  }
 
-  const disabled = useRealtimeStore.getState().client === null
+  const disabled = !useClientCreated()
 
   return (
     <>

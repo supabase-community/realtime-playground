@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { RealtimeClient } from '@/app/playground/_components/RealtimeClient'
 import { RealtimeChannels } from '@/app/playground/_components/RealtimeChannels'
 import Auth from '@/app/playground/_components/Auth'
@@ -14,13 +14,12 @@ import {
   PostgresChangesTable,
   PresenceStateTable,
 } from '@/app/playground/_components/tables'
-import { useRealtimeStore } from '@/store/realtimeStore'
+import { type SocketStatus, useRealtimeStore } from '@/store/realtimeStore'
 import { useSupabaseStore } from '@/store/supabaseStore'
 import { ActiveChannels, ListenerCallbacks } from './_components/ActiveChannels'
 
 export default function Playground() {
-  const status = useRealtimeStore((s) => s.status)
-  const socketConfig = useRealtimeStore((s) => s.socketConfig)
+  const [status, setStatus] = useState<SocketStatus | undefined>()
 
   const { logs, addLog, clear: clearLogs } = useLogMessages()
 
@@ -44,8 +43,11 @@ export default function Playground() {
 
   useEffect(() => {
     useSupabaseStore.getState().init()
-    const interval = setInterval(() => useRealtimeStore.getState().syncStatus(), 500)
-    useRealtimeStore.getState().syncStatus()
+    const interval = setInterval(() => {
+      const client = useRealtimeStore.getState().client
+      const status = client ? (client.connectionState() as SocketStatus) : undefined
+      setStatus(status)
+    }, 500)
     return () => {
       clearInterval(interval)
       useRealtimeStore.getState().destroy()
@@ -85,14 +87,7 @@ export default function Playground() {
   return (
     <div className="grid h-full grid-cols-2 gap-2 overflow-hidden">
       <div className="flex flex-col gap-4 overflow-y-auto">
-        <RealtimeClient
-          onSubmit={(config) => useRealtimeStore.getState().create(config, addLog)}
-          onDelete={() => useRealtimeStore.getState().destroy()}
-          onConnect={() => useRealtimeStore.getState().connect()}
-          onDisconnect={() => useRealtimeStore.getState().disconnect()}
-          disabled={!!socketConfig}
-          status={status}
-        />
+        <RealtimeClient status={status} logger={addLog} />
         <Auth />
         <RealtimeChannels />
         <ActiveChannels

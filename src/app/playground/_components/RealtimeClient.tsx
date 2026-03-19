@@ -1,21 +1,20 @@
 'use client'
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import type { RealtimeClientFormValues } from '@/schemas/client'
 import { RealtimeClientForm } from './forms'
 import { NEXT_PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 import { CopyButton } from '@/components/copy'
+import { useClientCreated } from '@/store/realtimeStore'
+import type { RealtimeLogger } from '@/types/realtime'
 
 type Props = {
-  onSubmit: (values: RealtimeClientFormValues) => void
-  onDelete: () => void
-  onConnect: () => void
-  onDisconnect: () => void
-  disabled: boolean
+  logger: RealtimeLogger
   status?: string
 }
 
-export function RealtimeClient({ status, disabled, ...props }: Props) {
+export function RealtimeClient({ status, logger }: Props) {
+  const disabled = useClientCreated()
+
   return (
     <Card>
       <CardHeader>
@@ -40,7 +39,7 @@ export function RealtimeClient({ status, disabled, ...props }: Props) {
         </div>
       </CardHeader>
       <CardContent>
-        <RealtimeClientForm {...props} disabled={disabled} status={status} />
+        <RealtimeClientForm disabled={disabled} status={status} logger={logger} />
       </CardContent>
       <CardFooter>
         <p className="text-muted-foreground flex items-center text-xs">

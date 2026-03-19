@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           <div className="h-[calc(100%-4rem)] min-h-0 overflow-hidden">{children}</div>
         </div>
-        <Toaster position="bottom-left" theme="dark" />
+        <Toaster position="bottom-left" theme="dark" closeButton />
       </body>
     </html>
   )

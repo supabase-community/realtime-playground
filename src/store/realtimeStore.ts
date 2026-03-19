@@ -1,30 +1,26 @@
 import { create } from 'zustand'
-import { RealtimeClient, RealtimeChannel } from '@supabase/supabase-js'
+import {
+  RealtimeClient,
+  RealtimeChannel,
+  RealtimeClientOptions,
+  RealtimeChannelOptions,
+} from '@supabase/supabase-js'
 import { toast } from 'sonner'
-import type { ChannelConfigValues } from '@/schemas/channel'
-import type { RealtimeClientFormValues } from '@/schemas/client'
 
 export type SocketStatus = 'closed' | 'connecting' | 'open' | 'closing'
 
-type Logger = (kind: string, msg: string, data: unknown) => void
-
-export type RealtimeStore = {
+type State = {
   client: RealtimeClient | null
-  socketConfig: RealtimeClientFormValues | null
-  status: SocketStatus
   channels: Map<string, RealtimeChannel>
+}
 
-  create: (config: RealtimeClientFormValues, logger?: Logger) => void
+type Action = {
+  create: (url: string, options: RealtimeClientOptions) => void
   destroy: () => void
-  syncStatus: () => void
   syncChannels: () => void
 
-  connect: () => void
-  disconnect: () => void
-
-  createChannel: (name: string, config?: ChannelConfigValues) => void
+  createChannel: (name: string, config?: RealtimeChannelOptions) => void
   removeChannel: (name: string) => void
-  subscribedChannels: () => [string, RealtimeChannel][]
   subscribe: (name: string) => void
   unsubscribe: (name: string) => void
   trackPresence: (name: string, payload: Record<string, unknown>) => void
@@ -33,30 +29,18 @@ export type RealtimeStore = {
   setAuth: (token: string) => void
 }
 
+export type RealtimeStore = State & Action
+
+export const useClientCreated = () => useRealtimeStore(({ client }) => !!client)
+
 export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   client: null,
-  socketConfig: null,
-  status: 'closed',
   channels: new Map(),
 
-  create(config, logger) {
+  create(url, options) {
     get().client?.disconnect()
-    const timeout = config.timeout ? parseInt(config.timeout) : undefined
-    const heartbeatIntervalMs = config.heartbeatIntervalMs
-      ? parseInt(config.heartbeatIntervalMs)
-      : undefined
     set({
-      socketConfig: config,
-      client: new RealtimeClient(config.url, {
-        params: {
-          apikey: config.apiKey,
-          ...(config.vsn ? { vsn: config.vsn } : {}),
-        },
-        worker: config.worker,
-        ...(timeout !== undefined ? { timeout } : {}),
-        ...(heartbeatIntervalMs !== undefined ? { heartbeatIntervalMs } : {}),
-        logger,
-      }),
+      client: new RealtimeClient(url, options),
     })
   },
 
@@ -64,17 +48,8 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     get().client?.disconnect()
     set({
       client: null,
-      socketConfig: null,
-      status: 'closed',
       channels: new Map(),
     })
-  },
-
-  syncStatus() {
-    const { client } = get()
-    if (!client) return
-    const status = client.connectionState() as SocketStatus
-    set({ status })
   },
 
   syncChannels() {
@@ -85,24 +60,28 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     })
   },
 
-  connect: () => get().client?.connect(),
-  disconnect: () => get().client?.disconnect(),
-
   createChannel(name, config) {
     const { client, channels, syncChannels } = get()
     if (!client) return
     if (channels.has(name)) {
-      toast.warning(`Channel "${name}" already exists`)
+      toast.warning(`[CHANNEL]: "${name}" already exists`)
       return
     }
 
-    const ch = client.channel(name, config ? { config } : undefined)
+    let ch: RealtimeChannel
+
+    try {
+      ch = client.channel(name, config)
+    } catch (e) {
+      toast.error(`[CHANNEL]: ${e instanceof Error ? e.message : JSON.stringify(e)}`)
+      return
+    }
+
     ch.on('system', {}, (payload) => {
       const msg = `[SYSTEM] ${payload.message}`
       if (payload.status === 'ok') toast.success(msg)
       else toast.error(msg)
     })
-
     syncChannels()
   },
 
@@ -115,11 +94,6 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     }
     ch.unsubscribe()
     syncChannels()
-  },
-
-  subscribedChannels() {
-    const { channels } = get()
-    return Array.from(channels.entries()).filter(([, ch]) => ch.state === 'joined')
   },
 
   subscribe(name) {
