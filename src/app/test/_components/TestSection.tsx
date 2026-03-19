@@ -40,19 +40,17 @@ const TestSection = forwardRef(({ name, tests, onStatusChange }: TestSectionProp
   const prepare = useCallback(() => {
     setStatus('Running')
     onStatusChange?.('Running')
+    childStatuses.current = tests.map(() => null)
     for (let i = 0; i < testCasesRefs.current.length; i++) {
-      if (childStatuses.current[i] !== 'Passed' && childStatuses.current[i] !== 'Failed') {
-        testCasesRefs.current[i]?.prepare()
-      }
+      testCasesRefs.current[i]?.prepare()
     }
-  }, [onStatusChange])
+  }, [onStatusChange, tests])
 
   const runAllTests = async () => {
-    const toRun = childStatuses.current.map((s) => s !== 'Passed' && s !== 'Failed')
     prepare()
     for (let i = 0; i < testCasesRefs.current.length; i++) {
       const testCase = testCasesRefs.current[i]
-      if (testCase && toRun[i]) {
+      if (testCase) {
         await testCase.handleRun()
       }
     }
@@ -76,7 +74,7 @@ const TestSection = forwardRef(({ name, tests, onStatusChange }: TestSectionProp
             <CardTitle className="text-base">{name}</CardTitle>
           </CollapsibleTrigger>
           <Button
-            disabled={status === 'Running' || status === 'Passed'}
+            disabled={status === 'Running'}
             variant={statusVariant(status)}
             size="sm"
             onClick={runAllTests}

@@ -32,19 +32,17 @@ export default function TestsPage() {
 
   const prepare = useCallback(() => {
     setStatus('Running')
+    childStatuses.current = Array.from({ length: sectionCount }, () => null)
     for (let i = 0; i < testSuitesRefs.current.length; i++) {
-      if (childStatuses.current[i] !== 'Passed' && childStatuses.current[i] !== 'Failed') {
-        testSuitesRefs.current[i]?.prepare()
-      }
+      testSuitesRefs.current[i]?.prepare()
     }
-  }, [])
+  }, [sectionCount])
 
   const runAllTests = async () => {
-    const toRun = childStatuses.current.map((s) => s !== 'Passed' && s !== 'Failed')
     prepare()
     for (let i = 0; i < testSuitesRefs.current.length; i++) {
       const testCase = testSuitesRefs.current[i]
-      if (testCase && toRun[i]) {
+      if (testCase) {
         await testCase.handleRun()
       }
     }
@@ -60,7 +58,7 @@ export default function TestsPage() {
           <div className="flex items-center gap-2">
             <TestSettingsModal />
             <Button
-              disabled={status === 'Running' || status === 'Passed'}
+              disabled={status === 'Running'}
               variant={statusVariant(status)}
               size="sm"
               onClick={runAllTests}

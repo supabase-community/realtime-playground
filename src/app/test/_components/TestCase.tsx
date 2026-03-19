@@ -128,7 +128,7 @@ const TestCase = forwardRef(({ test, onStatusChange }: TestCaseProps, ref) => {
               </CollapsibleTrigger>
             )}
             {status && statusBadge(status)}
-            {(!status || status === 'Failed') && (
+            {status !== 'Running' && (
               <Button variant="ghost" size="icon-sm" onClick={handleRun}>
                 <Rocket />
               </Button>
