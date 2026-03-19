@@ -16,6 +16,7 @@ export const channelConfigSchema = z.object({
           .refine((d) => d <= new Date(), { message: 'Cannot be in the future' })
           .transform((d) => d.getTime())
           .nonoptional(),
+        // max limit: https://supabase.com/docs/guides/realtime/broadcast?queryGroups=language&language=js#broadcast-replay
         limit: z.number().int().positive().max(25).optional(),
       })
       .optional(),
