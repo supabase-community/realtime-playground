@@ -20,7 +20,8 @@ export default {
         await supabase.realtime.setAuth()
 
         let subscribed: string | null = null
-        let result: object | null = null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let result: any = null
         const topic = 'topic:' + crypto.randomUUID()
 
         const previousId = await executeInsert(supabase, 'pg_changes')
@@ -48,9 +49,11 @@ export default {
         await executeInsert(supabase, 'dummy')
 
         await waitFor(() => result !== null)
+        const insertPayload = result
+        assert.equal(typeof insertPayload.new.id, 'number')
 
-        assert.equal(result.eventType, 'INSERT')
-        assert.equal(result.new.id, previousId + 1)
+        assert.equal(insertPayload.eventType, 'INSERT')
+        assert.equal(insertPayload.new.id, previousId + 1)
       },
     },
     {
@@ -59,7 +62,8 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: object | null = null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let result: any = null
         let subscribed: string | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
@@ -90,9 +94,11 @@ export default {
         executeUpdate(supabase, 'dummy', dummyId)
 
         await waitFor(() => result !== null)
+        const updatePayload = result
+        assert.equal(typeof updatePayload.new.id, 'number')
 
-        assert.equal(result.eventType, 'UPDATE')
-        assert.equal(result.new.id, mainId)
+        assert.equal(updatePayload.eventType, 'UPDATE')
+        assert.equal(updatePayload.new.id, mainId)
       },
     },
     {
@@ -101,7 +107,8 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: object | null = null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let result: any = null
         let subscribed: string | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
@@ -132,18 +139,23 @@ export default {
         executeDelete(supabase, 'dummy', dummyId)
 
         await waitFor(() => result !== null)
+        const deletePayload = result
+        assert.equal(typeof deletePayload.old.id, 'number')
 
-        assert.equal(result.eventType, 'DELETE')
-        assert.equal(result.old.id, mainId)
+        assert.equal(deletePayload.eventType, 'DELETE')
+        assert.equal(deletePayload.old.id, mainId)
       },
     },
     {
       name: 'user receives INSERT, UPDATE and DELETE concurrently',
       body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
-        let insertResult: unknown = null,
-          updateResult: unknown = null,
-          deleteResult: unknown = null
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let insertResult: any = null,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          updateResult: any = null,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          deleteResult: any = null
 
         const insertId = await executeInsert(supabase, 'pg_changes')
         const updateId = await executeInsert(supabase, 'pg_changes')
@@ -185,7 +197,6 @@ export default {
           waitFor(() => updateResult),
           waitFor(() => deleteResult),
         ])
-
         assert.strictEqual(insertResult.eventType, 'INSERT')
         assert.strictEqual(updateResult.eventType, 'UPDATE')
         assert.strictEqual(deleteResult.eventType, 'DELETE')
