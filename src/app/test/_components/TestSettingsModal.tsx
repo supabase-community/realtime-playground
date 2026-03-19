@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -40,6 +41,7 @@ function SettingsScreen({ onShowSetup }: { onShowSetup: () => void }) {
     <>
       <DialogHeader>
         <DialogTitle>Test Settings</DialogTitle>
+        <DialogDescription className="sr-only">Configure Supabase connection</DialogDescription>
       </DialogHeader>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -97,6 +99,7 @@ function SetupScreen({ onBack }: { onBack: () => void }) {
           </button>
           How to setup
         </DialogTitle>
+        <DialogDescription className="sr-only">Setup instructions</DialogDescription>
       </DialogHeader>
       <div className="text-muted-foreground flex flex-col gap-3 text-sm">
         <p>TODO: write instruction</p>
