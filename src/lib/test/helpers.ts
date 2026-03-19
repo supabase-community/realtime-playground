@@ -1,5 +1,6 @@
 import { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
 import assert from 'assert'
+import { TestData } from '.'
 
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -43,28 +44,28 @@ export const measureThroughput = async (
   latencies: number[],
   total: number,
   slo: number,
-): Promise<string> => {
-  await waitFor(() => latencies.length === total, 20_000)
+): Promise<TestData> => {
+  // do not throw 'timeout'
+  try {
+    await waitFor(() => latencies.length === total, 20_000)
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== 'timeout') throw e
+  }
 
   const delivered = latencies.length
   const deliveryRate = (delivered / total) * 100
   const sorted = latencies.slice().sort((a, b) => a - b)
   assert(deliveryRate >= slo, `Delivery rate ${deliveryRate.toFixed(1)}% below ${slo}% SLO`)
 
-  const metrics = [
-    { label: 'delivered', value: deliveryRate, unit: '%' },
-    { label: 'p50', value: sorted[Math.ceil(sorted.length * 0.5) - 1] ?? 0, unit: 'ms' },
-    { label: 'p95', value: sorted[Math.ceil(sorted.length * 0.95) - 1] ?? 0, unit: 'ms' },
-    { label: 'p99', value: sorted[Math.ceil(sorted.length * 0.99) - 1] ?? 0, unit: 'ms' },
-  ]
-
-  let res = ''
-
-  for (const metric of metrics) {
-    res += `${metric.label}: ${metric.value.toFixed(2)}${metric.unit}\n`
+  return {
+    type: 'load',
+    metrics: [
+      { label: 'delivered', value: deliveryRate, unit: '%' },
+      { label: 'p50', value: sorted[Math.ceil(sorted.length * 0.5) - 1] ?? 0, unit: 'ms' },
+      { label: 'p95', value: sorted[Math.ceil(sorted.length * 0.95) - 1] ?? 0, unit: 'ms' },
+      { label: 'p99', value: sorted[Math.ceil(sorted.length * 0.99) - 1] ?? 0, unit: 'ms' },
+    ],
   }
-
-  return res
 }
 
 export async function signInUser(supabase: SupabaseClient, email: string, password: string) {

@@ -10,7 +10,7 @@ export type Test = {
       url: string
       key: string
     },
-  ) => Promise<string | void>
+  ) => Promise<TestData | void>
 }
 
 export type TestSuite = {
@@ -19,8 +19,22 @@ export type TestSuite = {
 
 export type TestResult = {
   status: 'passed' | 'failed'
-  message?: string
+  data?: TestData
 }
+
+export type TestData =
+  | {
+      type: 'normal'
+      message: string
+    }
+  | {
+      type: 'load'
+      metrics: {
+        label: string
+        value: number
+        unit: string
+      }[]
+    }
 
 export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
   const client = createClient(url, key, {
@@ -31,15 +45,18 @@ export const runTest = async (test: Test, url: string, key: string): Promise<Tes
   })
   let result: TestResult
   try {
-    const message = (await test.body(client, { url, key })) ?? undefined
+    const data = (await test.body(client, { url, key })) ?? undefined
     result = {
       status: 'passed',
-      message,
+      data,
     }
   } catch (e) {
     result = {
       status: 'failed',
-      message: (e as Error)?.message,
+      data: {
+        type: 'normal',
+        message: (e as Error)?.message,
+      },
     }
   }
   client.realtime.disconnect()

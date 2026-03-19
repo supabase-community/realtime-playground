@@ -28,7 +28,16 @@ export default {
 
         const latency = await waitForPostgresChannel(channel)
 
-        return `${latency}ms`
+        return {
+          type: 'load',
+          metrics: [
+            {
+              label: 'latency',
+              unit: 'ms',
+              value: latency,
+            },
+          ],
+        }
       },
     },
     {
