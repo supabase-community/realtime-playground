@@ -23,7 +23,7 @@ export default function Auth() {
           <div className="flex flex-col gap-2">
             <LoginForm onSubmit={handleLogin} />
             <p className="text-muted-foreground text-xs">
-              Tip: Set NEXT_PUBLIC_TEST_USER_EMAIL in .env
+              Tip: Set PUBLIC_TEST_USER_EMAIL in .env
             </p>
           </div>
         ) : (

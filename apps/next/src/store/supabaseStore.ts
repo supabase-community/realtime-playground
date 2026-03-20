@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { toast } from 'sonner'
-import { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY } from '@/lib/constants'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 import { useRealtimeStore } from './realtimeStore'
 
 interface SupabaseStore {
@@ -18,7 +18,7 @@ interface SupabaseStore {
 export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
   init() {
     set({
-      client: createClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY),
+      client: createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY),
     })
   },
 
@@ -56,7 +56,7 @@ export const useSupabaseStore = create<SupabaseStore>((set, get) => ({
 
     await client.auth.signOut()
     set({ userId: undefined, email: undefined })
-    useRealtimeStore.getState().setAuth(NEXT_PUBLIC_SUPABASE_KEY)
+    useRealtimeStore.getState().setAuth(PUBLIC_SUPABASE_KEY)
     useRealtimeStore.getState().syncChannels()
   },
 }))

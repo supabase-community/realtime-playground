@@ -1,4 +1,0 @@
-export const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-export const NEXT_PUBLIC_REALTIME_URL = process.env.NEXT_PUBLIC_REALTIME_URL ?? ''
-export const NEXT_PUBLIC_SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY ?? ''
-export const NEXT_PUBLIC_TEST_USER_EMAIL = process.env.NEXT_PUBLIC_TEST_USER_EMAIL ?? ''

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import type { RealtimeClientFormValues } from '@/schemas/client'
 import { RealtimeClientForm } from './forms'
-import { NEXT_PUBLIC_SUPABASE_KEY } from '@/lib/constants'
+import { PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 import { CopyButton } from '@/components/copy'
 
 type Props = {
@@ -45,7 +45,7 @@ export function RealtimeClient({ status, disabled, ...props }: Props) {
       <CardFooter>
         <p className="text-muted-foreground flex items-center text-xs">
           Default API KEY:
-          <CopyButton content={NEXT_PUBLIC_SUPABASE_KEY} className="hover:text-foreground" />
+          <CopyButton content={PUBLIC_SUPABASE_KEY} className="hover:text-foreground" />
         </p>
       </CardFooter>
     </Card>

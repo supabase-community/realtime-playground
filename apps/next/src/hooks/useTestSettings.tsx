@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_KEY } from '@/lib/constants'
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 
 interface TestSettings {
   supabaseUrl: string
@@ -14,8 +14,8 @@ interface TestSettingsContextValue extends TestSettings {
 const TestSettingsContext = createContext<TestSettingsContextValue | null>(null)
 
 export function TestSettingsProvider({ children }: { children: ReactNode }) {
-  const [supabaseUrl, setSupabaseUrl] = useState(NEXT_PUBLIC_SUPABASE_URL)
-  const [supabaseKey, setSupabaseKey] = useState(NEXT_PUBLIC_SUPABASE_KEY)
+  const [supabaseUrl, setSupabaseUrl] = useState(PUBLIC_SUPABASE_URL)
+  const [supabaseKey, setSupabaseKey] = useState(PUBLIC_SUPABASE_KEY)
 
   const value: TestSettingsContextValue = {
     supabaseUrl: supabaseUrl,
