@@ -10,6 +10,11 @@ import {
 } from '../helpers'
 import assert from 'assert'
 import { BROADCAST_CONFIG } from './const'
+import {
+  RealtimePostgresDeletePayload,
+  RealtimePostgresInsertPayload,
+  RealtimePostgresUpdatePayload,
+} from '@supabase/supabase-js'
 
 export default {
   'postgres changes extension': [
@@ -20,7 +25,7 @@ export default {
         await supabase.realtime.setAuth()
 
         let subscribed: string | null = null
-        let result: object | null = null
+        let result: RealtimePostgresInsertPayload<any> | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
         const previousId = await executeInsert(supabase, 'pg_changes')
@@ -49,8 +54,8 @@ export default {
 
         await waitFor(() => result !== null)
 
-        assert.equal(result.eventType, 'INSERT')
-        assert.equal(result.new.id, previousId + 1)
+        assert.equal(result!.eventType, 'INSERT')
+        assert.equal(result!.new.id, previousId + 1)
       },
     },
     {
@@ -59,7 +64,7 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: object | null = null
+        let result: RealtimePostgresUpdatePayload<any> | null = null
         let subscribed: string | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
@@ -91,8 +96,8 @@ export default {
 
         await waitFor(() => result !== null)
 
-        assert.equal(result.eventType, 'UPDATE')
-        assert.equal(result.new.id, mainId)
+        assert.equal(result!.eventType, 'UPDATE')
+        assert.equal(result!.new.id, mainId)
       },
     },
     {
@@ -101,7 +106,7 @@ export default {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
         await supabase.realtime.setAuth()
 
-        let result: object | null = null
+        let result: RealtimePostgresDeletePayload<any> | null = null
         let subscribed: string | null = null
         const topic = 'topic:' + crypto.randomUUID()
 
@@ -133,17 +138,17 @@ export default {
 
         await waitFor(() => result !== null)
 
-        assert.equal(result.eventType, 'DELETE')
-        assert.equal(result.old.id, mainId)
+        assert.equal(result!.eventType, 'DELETE')
+        assert.equal(result!.old.id, mainId)
       },
     },
     {
       name: 'user receives INSERT, UPDATE and DELETE concurrently',
       body: async (supabase) => {
         await signInUser(supabase, 'filipe@supabase.io', 'test_test')
-        let insertResult: unknown = null,
-          updateResult: unknown = null,
-          deleteResult: unknown = null
+        let insertResult: RealtimePostgresInsertPayload<any> | null = null
+        let updateResult: RealtimePostgresUpdatePayload<any> | null = null
+        let deleteResult: RealtimePostgresDeletePayload<any> | null = null
 
         const insertId = await executeInsert(supabase, 'pg_changes')
         const updateId = await executeInsert(supabase, 'pg_changes')
@@ -186,9 +191,9 @@ export default {
           waitFor(() => deleteResult),
         ])
 
-        assert.strictEqual(insertResult.eventType, 'INSERT')
-        assert.strictEqual(updateResult.eventType, 'UPDATE')
-        assert.strictEqual(deleteResult.eventType, 'DELETE')
+        assert.strictEqual(insertResult!.eventType, 'INSERT')
+        assert.strictEqual(updateResult!.eventType, 'UPDATE')
+        assert.strictEqual(deleteResult!.eventType, 'DELETE')
       },
     },
   ],
