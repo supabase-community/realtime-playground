@@ -16,6 +16,7 @@ const config: ExpoConfig = {
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
+  plugins: ['expo-router', 'expo-font'],
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.supabase.realtimeplayground',
