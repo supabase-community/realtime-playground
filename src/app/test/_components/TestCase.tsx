@@ -102,14 +102,17 @@ const TestCase = forwardRef(({ test, onStatusChange }: TestCaseProps, ref) => {
   }, [onStatusChange])
 
   const handleRun = useCallback(async () => {
-    prepare()
     const res = await runTest(test, supabaseUrl, supabaseKey)
     setData(res.data)
     const newStatus = res.status === 'passed' ? 'Passed' : 'Failed'
     setStatus(newStatus)
     onStatusChange?.(newStatus)
-    return newStatus
-  }, [test, supabaseUrl, supabaseKey, prepare, onStatusChange])
+  }, [test, supabaseUrl, supabaseKey, onStatusChange])
+
+  const handleClick = useCallback(() => {
+    prepare()
+    handleRun()
+  }, [handleRun, prepare])
 
   useImperativeHandle(ref, () => ({
     handleRun,
@@ -129,7 +132,7 @@ const TestCase = forwardRef(({ test, onStatusChange }: TestCaseProps, ref) => {
             )}
             {status && statusBadge(status)}
             {status !== 'Running' && (
-              <Button variant="ghost" size="icon-sm" onClick={handleRun}>
+              <Button variant="ghost" size="icon-sm" onClick={handleClick}>
                 <Rocket />
               </Button>
             )}
