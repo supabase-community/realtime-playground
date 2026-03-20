@@ -86,9 +86,10 @@ const RenderTestData = ({ data, status }: RenderTestDataProps) => {
 
 type TestCaseProps = {
   test: Test
+  onStatusChange?: (status: Status) => void
 }
 
-const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
+const TestCase = forwardRef(({ test, onStatusChange }: TestCaseProps, ref) => {
   const [status, setStatus] = useState<Status>(null)
   const [data, setData] = useState<TestData | undefined>()
   const [open, setOpen] = useState(true)
@@ -96,21 +97,22 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
 
   const prepare = useCallback(() => {
     setStatus('Running')
+    onStatusChange?.('Running')
     setData(undefined)
-  }, [])
+  }, [onStatusChange])
 
   const handleRun = useCallback(async () => {
-    prepare()
     const res = await runTest(test, supabaseUrl, supabaseKey)
     setData(res.data)
-    if (res.status === 'passed') {
-      setStatus('Passed')
-      return 'Passed'
-    } else {
-      setStatus('Failed')
-      return 'Failed'
-    }
-  }, [test, supabaseUrl, supabaseKey, prepare])
+    const newStatus = res.status === 'passed' ? 'Passed' : 'Failed'
+    setStatus(newStatus)
+    onStatusChange?.(newStatus)
+  }, [test, supabaseUrl, supabaseKey, onStatusChange])
+
+  const handleClick = useCallback(() => {
+    prepare()
+    handleRun()
+  }, [handleRun, prepare])
 
   useImperativeHandle(ref, () => ({
     handleRun,
@@ -129,8 +131,8 @@ const TestCase = forwardRef(({ test }: TestCaseProps, ref) => {
               </CollapsibleTrigger>
             )}
             {status && statusBadge(status)}
-            {(!status || status === 'Failed') && (
-              <Button variant="ghost" size="icon-sm" onClick={handleRun}>
+            {status !== 'Running' && (
+              <Button variant="ghost" size="icon-sm" onClick={handleClick}>
                 <Rocket />
               </Button>
             )}

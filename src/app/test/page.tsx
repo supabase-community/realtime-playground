@@ -11,27 +11,43 @@ import TestSettingsModal from './_components/TestSettingsModal'
 export default function TestsPage() {
   const [status, setStatus] = useState<Status>(null)
   const testSuitesRefs = useRef<(TestCaseHandle | null)[]>([])
+  const sectionCount = Object.keys(testCases).length
+  const childStatuses = useRef<Status[]>(Array.from({ length: sectionCount }, () => null))
+
+  const computePageStatus = useCallback((): Status => {
+    const statuses = childStatuses.current
+    if (statuses.some((s) => s === 'Failed')) return 'Failed'
+    if (statuses.every((s) => s === 'Passed')) return 'Passed'
+    if (statuses.some((s) => s === 'Running')) return 'Running'
+    return null
+  }, [])
+
+  const handleSectionStatusChange = useCallback(
+    (index: number) => (sectionStatus: Status) => {
+      childStatuses.current[index] = sectionStatus
+      setStatus(computePageStatus())
+    },
+    [computePageStatus],
+  )
 
   const prepare = useCallback(() => {
     setStatus('Running')
-    for (const c of testSuitesRefs.current) {
-      c?.prepare()
+    childStatuses.current = Array.from({ length: sectionCount }, () => null)
+    for (let i = 0; i < testSuitesRefs.current.length; i++) {
+      testSuitesRefs.current[i]?.prepare()
     }
-  }, [])
+  }, [sectionCount])
 
-  const runAllTests = async () => {
+  const handleClick = useCallback(async () => {
     prepare()
-    let res: 'Passed' | 'Failed' = 'Passed'
-    for (const testCase of testSuitesRefs.current) {
+    for (let i = 0; i < testSuitesRefs.current.length; i++) {
+      const testCase = testSuitesRefs.current[i]
       if (testCase) {
-        if ((await testCase.handleRun()) === 'Failed') {
-          res = 'Failed'
-        }
+        await testCase.handleRun()
       }
     }
-    setStatus(res)
-    return res
-  }
+    setStatus(computePageStatus())
+  }, [prepare, computePageStatus])
 
   return (
     <TestSettingsProvider>
@@ -41,10 +57,10 @@ export default function TestsPage() {
           <div className="flex items-center gap-2">
             <TestSettingsModal />
             <Button
-              disabled={!!status}
+              disabled={status === 'Running'}
               variant={statusVariant(status)}
               size="sm"
-              onClick={runAllTests}
+              onClick={handleClick}
             >
               {status || 'Run'}
             </Button>
@@ -56,6 +72,7 @@ export default function TestsPage() {
               key={k}
               name={k}
               tests={v}
+              onStatusChange={handleSectionStatusChange(i)}
               ref={(el) => {
                 testSuitesRefs.current[i] = el as TestCaseHandle
               }}

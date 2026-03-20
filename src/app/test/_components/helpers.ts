@@ -1,5 +1,5 @@
 export type TestCaseHandle = {
-  handleRun: () => Promise<'Passed' | 'Failed'>
+  handleRun: () => Promise<void>
   prepare: () => void
 }
 
