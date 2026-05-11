@@ -7,6 +7,7 @@ export type TestCaseResult = {
   name: string
   status: Status
   error?: string
+  stack?: string
 }
 
 export type TestCaseHandle = {
