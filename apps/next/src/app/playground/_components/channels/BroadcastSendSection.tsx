@@ -1,9 +1,8 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type BroadcastSendValues, broadcastSendSchema } from '@realtime-playground/realtime-core'
 import { useForm } from 'react-hook-form'
-
-import { broadcastSendSchema, type BroadcastSendValues } from '@realtime-playground/realtime-core'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

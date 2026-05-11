@@ -1,19 +1,19 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type ChannelFormInput,
+  type ChannelFormValues,
+  channelFormSchema,
+  createChannelDefaults,
+} from '@realtime-playground/realtime-core'
+import { Controller, type UseFormReturn, useForm, useWatch } from 'react-hook-form'
 import { FieldLabel } from '@/components/field-label'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  channelFormSchema,
-  createChannelDefaults,
-  type ChannelFormInput,
-  type ChannelFormValues,
-} from '@realtime-playground/realtime-core'
-import { Controller, useForm, useWatch, type UseFormReturn } from 'react-hook-form'
 
 import { transformOptionalNumber } from './helpers'
 

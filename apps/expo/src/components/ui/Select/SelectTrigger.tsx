@@ -1,9 +1,9 @@
 import {
   Pressable,
-  Text,
-  View,
   type PressableProps,
   type StyleProp,
+  Text,
+  View,
   type ViewStyle,
 } from 'react-native'
 

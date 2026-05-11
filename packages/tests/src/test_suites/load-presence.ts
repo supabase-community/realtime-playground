@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { measureThroughput, now, randomId, waitForChannel } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 import { LOAD_DELIVERY_SLO } from './const'
 
 const CLIENTS = 10

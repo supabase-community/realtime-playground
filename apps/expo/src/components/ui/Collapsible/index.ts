@@ -1,5 +1,5 @@
-import { CollapsibleContent } from './CollapsibleContent'
 import { CollapsibleRoot } from './Collapsible'
+import { CollapsibleContent } from './CollapsibleContent'
 import { CollapsibleTrigger } from './CollapsibleTrigger'
 
 export const Collapsible = Object.assign(CollapsibleRoot, {

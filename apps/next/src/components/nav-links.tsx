@@ -2,16 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { buttonVariants } from './ui/button'
 import { cn } from '@/lib/utils'
+import { buttonVariants } from './ui/button'
 
-const links = [
-  { href: '/playground', label: 'Playground' },
-  { href: '/test', label: 'Test Runner' },
-]
+type Props = { enablePlayground: boolean }
 
-export function NavLinks() {
+export function NavLinks({ enablePlayground }: Props) {
   const pathname = usePathname()
+
+  const links = [
+    ...(enablePlayground ? [{ href: '/playground', label: 'Playground' }] : []),
+    { href: '/test', label: 'Test Runner' },
+  ]
 
   return (
     <nav className="mb-4 flex gap-4">

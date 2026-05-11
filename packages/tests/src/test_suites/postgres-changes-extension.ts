@@ -14,7 +14,7 @@ import {
   waitForChannel,
   waitForPostgresChannel,
 } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 import { BROADCAST_CONFIG } from './const'
 
 type Payload = Record<string, unknown>
@@ -23,8 +23,8 @@ export default {
   'postgres changes extension': [
     {
       name: 'user is able to receive INSERT only events from a subscribed table with filter applied',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         await supabase.realtime.setAuth()
 
         let subscribed: string | null = null
@@ -57,15 +57,18 @@ export default {
 
         await waitFor(() => result !== null)
 
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(typeof result!.new.id, 'number')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.eventType, 'INSERT')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.new.id, previousId + 1)
       },
     },
     {
       name: 'user is able to receive UPDATE only events from a subscribed table with filter applied',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         await supabase.realtime.setAuth()
 
         let result: RealtimePostgresUpdatePayload<Payload> | null = null
@@ -94,21 +97,24 @@ export default {
         await waitForChannel(channel)
         await waitFor(() => subscribed === 'ok')
 
-        executeUpdate(supabase, 'pg_changes', mainId)
-        executeUpdate(supabase, 'pg_changes', fakeId)
-        executeUpdate(supabase, 'dummy', dummyId)
+        void executeUpdate(supabase, 'pg_changes', mainId)
+        void executeUpdate(supabase, 'pg_changes', fakeId)
+        void executeUpdate(supabase, 'dummy', dummyId)
 
         await waitFor(() => result !== null)
 
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(typeof result!.new.id, 'number')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.eventType, 'UPDATE')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.new.id, mainId)
       },
     },
     {
       name: 'user is able to receive DELETE only events from a subscribed table with filter applied',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         await supabase.realtime.setAuth()
 
         let result: RealtimePostgresDeletePayload<Payload> | null = null
@@ -137,21 +143,24 @@ export default {
         await waitForChannel(channel)
         await waitFor(() => subscribed === 'ok')
 
-        executeDelete(supabase, 'pg_changes', mainId)
-        executeDelete(supabase, 'pg_changes', fakeId)
-        executeDelete(supabase, 'dummy', dummyId)
+        void executeDelete(supabase, 'pg_changes', mainId)
+        void executeDelete(supabase, 'pg_changes', fakeId)
+        void executeDelete(supabase, 'dummy', dummyId)
 
         await waitFor(() => result !== null)
 
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(typeof result!.old.id, 'number')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.eventType, 'DELETE')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.equal(result!.old.id, mainId)
       },
     },
     {
       name: 'user receives INSERT, UPDATE and DELETE concurrently',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         let insertResult: RealtimePostgresInsertPayload<Payload> | null = null
         let updateResult: RealtimePostgresUpdatePayload<Payload> | null = null
         let deleteResult: RealtimePostgresDeletePayload<Payload> | null = null
@@ -198,8 +207,11 @@ export default {
           waitFor(() => deleteResult),
         ])
 
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(insertResult!.eventType, 'INSERT')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(updateResult!.eventType, 'UPDATE')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(deleteResult!.eventType, 'DELETE')
       },
     },

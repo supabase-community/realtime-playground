@@ -1,9 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
 import { randomId } from './runtime'
-import { Test, TestResult } from './types'
+import type { Test, TestResult } from './types'
 
-export const runTest = async (test: Test, url: string, key: string): Promise<TestResult> => {
+export const runTest = async (
+  test: Test,
+  url: string,
+  key: string,
+  email: string,
+  password: string,
+): Promise<TestResult> => {
   const client = createClient(url, key, {
     realtime: { heartbeatIntervalMs: 5000, timeout: 5000 },
     auth: {
@@ -13,7 +19,7 @@ export const runTest = async (test: Test, url: string, key: string): Promise<Tes
 
   let result: TestResult
   try {
-    const data = (await test.body(client, { url, key })) ?? undefined
+    const data = (await test.body(client, { url, key, email, password })) ?? undefined
     result = {
       status: 'passed',
       data,

@@ -35,6 +35,7 @@ export function LogsTable({ logs, onClear }: Props) {
         ) : (
           <ul className="max-h-96 space-y-2 overflow-auto">
             {logs.map((log, idx) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: logs are append-only with no stable ID
               <li key={idx} className="border-border space-y-1 rounded-md border px-3 py-2 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground whitespace-nowrap tabular-nums">

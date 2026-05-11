@@ -1,4 +1,4 @@
-import { SymbolView, type SFSymbol } from 'expo-symbols'
+import { type SFSymbol, SymbolView } from 'expo-symbols'
 import { Pressable, Text, View } from 'react-native'
 
 import { colors } from '../theme'

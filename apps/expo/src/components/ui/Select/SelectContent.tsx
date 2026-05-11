@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { Modal, Pressable, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native'
+import type * as React from 'react'
+import { Modal, Pressable, ScrollView, type StyleProp, View, type ViewStyle } from 'react-native'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelectContext } from './SelectContext'

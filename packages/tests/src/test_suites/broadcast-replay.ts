@@ -1,13 +1,13 @@
 import assert from 'assert'
 import { randomId, signInUser, sleep, waitFor, waitForChannel } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 
 export default {
   'broadcast replay': [
     {
       name: 'replayed messages are delivered on join',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const event = randomId()
         const topic = `topic:${randomId()}`
         const payload = { message: randomId() }
@@ -26,13 +26,14 @@ export default {
         await waitForChannel(receiver)
 
         await waitFor(() => result)
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(result!.message, payload.message)
       },
     },
     {
       name: 'replayed messages carry meta.replayed flag',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const event = randomId()
         const topic = `topic:${randomId()}`
 
@@ -52,13 +53,14 @@ export default {
         await waitForChannel(receiver)
 
         await waitFor(() => receivedMeta)
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(receivedMeta!.replayed, true)
       },
     },
     {
       name: 'messages before since are not replayed',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const event = randomId()
         const topic = `topic:${randomId()}`
 

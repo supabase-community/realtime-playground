@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
-import { Pressable, Text, type PressableProps, type StyleProp, type ViewStyle } from 'react-native'
+import type React from 'react'
+import { useEffect } from 'react'
+import { Pressable, type PressableProps, type StyleProp, Text, type ViewStyle } from 'react-native'
 
 import { useSelectContext } from './SelectContext'
 import { selectStyles } from './selectStyles'

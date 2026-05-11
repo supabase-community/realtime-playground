@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { ActivityIndicator, type ActivityIndicatorProps } from 'react-native'
 
 import { colors } from './theme'

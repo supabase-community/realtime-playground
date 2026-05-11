@@ -1,25 +1,25 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type LoginValues, loginSchema, useEnv } from '@realtime-playground/realtime-core'
 import { useForm } from 'react-hook-form'
-
-import { loginSchema, type LoginValues } from '@realtime-playground/realtime-core'
 
 import { FieldLabel } from '@/components/field-label'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { PUBLIC_TEST_USER_EMAIL } from '@/lib/constants'
 
 type Props = {
   onSubmit: (values: LoginValues) => void
 }
 
 export function LoginForm({ onSubmit }: Props) {
+  const { testUserEmail, testUserPassword } = useEnv()
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: PUBLIC_TEST_USER_EMAIL,
-      password: '',
+      email: testUserEmail,
+      password: testUserPassword,
     },
     reValidateMode: 'onSubmit',
   })

@@ -8,6 +8,7 @@ let records: ToastRecord[] = []
 const listeners = new Set<() => void>()
 
 function emit() {
+  // biome-ignore lint/suspicious/useIterableCallbackReturn: forEach return value is intentionally discarded
   listeners.forEach((listener) => listener())
 }
 

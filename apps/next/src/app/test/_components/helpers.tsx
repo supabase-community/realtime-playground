@@ -1,19 +1,26 @@
+import { Rocket, RotateCcw } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Rocket, RotateCcw } from 'lucide-react'
+
+export type TestCaseResult = {
+  name: string
+  status: Status
+  error?: string
+}
 
 export type TestCaseHandle = {
   handleRun: () => Promise<void>
   prepare: () => void
+  getResult: () => TestCaseResult
 }
 
 export type Status = 'Running' | 'Passed' | 'Failed' | null
 
 export const statusVariant = (status: Status) => {
-  if (status == 'Running') return 'outline'
-  if (status == 'Failed') return 'destructive'
-  if (status == 'Passed') return 'default'
+  if (status === 'Running') return 'outline'
+  if (status === 'Failed') return 'destructive'
+  if (status === 'Passed') return 'default'
 }
 
 export type StatusBadgeProps = {
@@ -21,22 +28,23 @@ export type StatusBadgeProps = {
 }
 
 export const StatusBadge = ({ status }: StatusBadgeProps) => {
-  if (!status) return <></>
+  if (!status) return null
   return <Badge variant={statusVariant(status)}>{status}</Badge>
 }
 
 export type RunButtonProps = {
   status: Status
   onClick: () => void
+  disabled?: boolean
 }
 
-export const RunButton = ({ status, onClick }: RunButtonProps) => {
-  if (status === 'Running') return <></>
+export const RunButton = ({ status, onClick, disabled }: RunButtonProps) => {
+  if (status === 'Running') return null
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon-sm" onClick={onClick}>
+          <Button variant="ghost" size="icon-sm" onClick={onClick} disabled={disabled}>
             {!status ? <Rocket /> : <RotateCcw />}
           </Button>
         </TooltipTrigger>

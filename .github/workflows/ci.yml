@@ -11,16 +11,14 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - run: corepack enable
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: yarn
-      - run: yarn install --immutable
-      - name: Format check
-        run: yarn format:check
-      - name: Lint
-        run: yarn lint
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check (format + lint)
+        run: pnpm lint
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm typecheck

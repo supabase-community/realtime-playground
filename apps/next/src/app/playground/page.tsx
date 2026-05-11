@@ -1,7 +1,16 @@
 'use client'
 
+import {
+  type SocketStatus,
+  useBroadcastMessages,
+  useEnv,
+  useLogMessages,
+  usePostgresChanges,
+  usePresenceState,
+  useRealtimeStore,
+  useSupabaseStore,
+} from '@realtime-playground/realtime-core'
 import { useCallback, useEffect, useState } from 'react'
-
 import Auth from '@/app/playground/_components/Auth'
 import { RealtimeChannels } from '@/app/playground/_components/RealtimeChannels'
 import { RealtimeClient } from '@/app/playground/_components/RealtimeClient'
@@ -11,20 +20,12 @@ import {
   PostgresChangesTable,
   PresenceStateTable,
 } from '@/app/playground/_components/tables'
-import { PUBLIC_SUPABASE_KEY, PUBLIC_SUPABASE_URL } from '@/lib/constants'
-import {
-  type SocketStatus,
-  useBroadcastMessages,
-  useLogMessages,
-  usePostgresChanges,
-  usePresenceState,
-  useRealtimeStore,
-  useSupabaseStore,
-} from '@realtime-playground/realtime-core'
-import { ActiveChannels, ListenerCallbacks } from './_components/ActiveChannels'
+import SettingsModal from '@/components/SettingsModal'
+import { ActiveChannels, type ListenerCallbacks } from './_components/ActiveChannels'
 
 export default function Playground() {
   const [status, setStatus] = useState<SocketStatus | undefined>()
+  const { supabaseUrl, supabaseKey } = useEnv()
 
   const { logs, addLog, clear: clearLogs } = useLogMessages()
 
@@ -46,19 +47,24 @@ export default function Playground() {
     clear: clearPresenceState,
   } = usePresenceState()
 
-  useEffect(() => {
-    useSupabaseStore.getState().init(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY)
+  const client = useRealtimeStore(({ client }) => client)
 
-    const interval = setInterval(() => {
-      const client = useRealtimeStore.getState().client
-      const status = client ? (client.connectionState() as SocketStatus) : undefined
-      setStatus(status)
-    }, 500)
-    return () => {
-      clearInterval(interval)
-      useRealtimeStore.getState().destroy()
+  useEffect(() => {
+    if (supabaseUrl && supabaseKey) {
+      useSupabaseStore.getState().init(supabaseUrl, supabaseKey)
     }
-  }, [])
+    return () => useRealtimeStore.getState().destroy()
+  }, [supabaseUrl, supabaseKey])
+
+  useEffect(() => {
+    if (!client) {
+      setStatus(undefined)
+      return
+    }
+    setStatus(client.connectionState() as SocketStatus)
+    const id = setInterval(() => setStatus(client.connectionState() as SocketStatus), 500)
+    return () => clearInterval(id)
+  }, [client])
 
   const addBroadcastListener = useCallback(
     (name: string, event: string) => {
@@ -89,6 +95,24 @@ export default function Playground() {
     },
     [registerPostgresListener],
   )
+
+  if (!supabaseUrl || !supabaseKey) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <p className="text-muted-foreground text-sm">
+          No Supabase project configured. Set your URL and API key to get started.
+        </p>
+        <SettingsModal>
+          <button
+            type="button"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm font-medium"
+          >
+            Configure project
+          </button>
+        </SettingsModal>
+      </div>
+    )
+  }
 
   return (
     <div className="grid h-full grid-cols-2 gap-2 overflow-hidden">

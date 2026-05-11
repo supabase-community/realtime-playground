@@ -1,8 +1,8 @@
 import * as React from 'react'
 import {
+  type StyleProp,
   StyleSheet,
   TextInput,
-  type StyleProp,
   type TextInputProps,
   type TextStyle,
   type ViewStyle,

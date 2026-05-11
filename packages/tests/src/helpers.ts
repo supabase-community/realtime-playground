@@ -1,4 +1,4 @@
-import { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js'
 import assert from 'assert'
 
 import { now, randomId } from './runtime'

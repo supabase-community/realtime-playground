@@ -1,13 +1,12 @@
+import { testCases } from '@realtime-playground/tests'
 import { Stack, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useCallback, useRef, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 
-import { testCases } from '@realtime-playground/tests'
-
-import { colors, Dialog, Screen, spacing, Spinner, typography } from '../ui'
-import { type Status, type TestRunnerHandle } from './shared'
+import { colors, Dialog, Screen, Spinner, spacing, typography } from '../ui'
 import { StatusBadge } from './StatusBadge'
+import type { Status, TestRunnerHandle } from './shared'
 import { TestSectionCard } from './TestSectionCard'
 import { TestSettingsPanel } from './TestSettingsPanel'
 

@@ -1,7 +1,6 @@
-import { type TextProps } from 'react-native'
-
-import { colors } from '../theme'
+import type { TextProps } from 'react-native'
 import { Label } from '../label'
+import { colors } from '../theme'
 import { useFormField } from './useFormField'
 
 export function FormLabel({ style, ...props }: TextProps) {
