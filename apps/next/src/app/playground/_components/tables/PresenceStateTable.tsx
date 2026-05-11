@@ -63,6 +63,7 @@ export function PresenceStateTable({ presenceState, onClear }: Props) {
                         </p>
                         {Array.isArray(presences) &&
                           presences.map((presence, i) => (
+                            // biome-ignore lint/suspicious/noArrayIndexKey: presence entries have no stable ID
                             <pre key={i} className="text-muted-foreground overflow-x-auto text-xs">
                               {JSON.stringify(presence, null, 2)}
                             </pre>

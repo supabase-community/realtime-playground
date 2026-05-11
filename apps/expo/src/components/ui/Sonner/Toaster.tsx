@@ -1,9 +1,8 @@
-import { StyleSheet, View, useWindowDimensions, type StyleProp, type ViewStyle } from 'react-native'
+import { type StyleProp, StyleSheet, useWindowDimensions, View, type ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
+import { SonnerToast } from './SonnerToast'
 import { useToasts } from './sonnerStore'
 import { sonnerStyles } from './sonnerStyles'
-import { SonnerToast } from './SonnerToast'
 
 const STACK_OFFSET = 8
 const STACK_SCALE_STEP = 0.05

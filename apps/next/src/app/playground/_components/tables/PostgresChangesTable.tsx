@@ -110,6 +110,7 @@ export function PostgresChangesTable({ changes, onClear }: Props) {
               </TableHeader>
               <TableBody>
                 {changes.map((change, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: changes are append-only with no stable ID
                   <TableRow key={idx}>
                     <TableCell className="text-muted-foreground align-top text-xs whitespace-nowrap tabular-nums">
                       {new Date(change.timestamp).toLocaleTimeString()}

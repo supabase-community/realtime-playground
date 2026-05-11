@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import type * as React from 'react'
+import { type StyleProp, StyleSheet, type TextStyle, View, type ViewStyle } from 'react-native'
 
 import { colors, radii } from './theme'
 import { renderTextChild } from './utils'

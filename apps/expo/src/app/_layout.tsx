@@ -1,5 +1,4 @@
 import { Stack } from 'expo-router'
-import * as React from 'react'
 
 import { Toaster } from '../components/ui'
 import { colors } from '../components/ui/theme'

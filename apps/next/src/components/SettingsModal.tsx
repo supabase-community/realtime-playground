@@ -1,5 +1,10 @@
 'use client'
 
+import { useEnv } from '@realtime-playground/realtime-core'
+import { ClipboardPaste, Cog } from 'lucide-react'
+import { type ReactNode, useEffect, useState } from 'react'
+import { codeToHtml } from 'shiki'
+import { CopyButton } from '@/components/copy'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,13 +16,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { CopyButton } from '@/components/copy'
-import { useEnv } from '@realtime-playground/realtime-core'
-import { ArrowLeft, ClipboardPaste, Cog } from 'lucide-react'
-import { useEffect, useState, type ReactNode } from 'react'
-import { codeToHtml } from 'shiki'
-
-type Screen = 'settings' | 'setup'
 
 // taken from https://raw.githubusercontent.com/supabase/realtime/refs/heads/main/test/e2e/realtime-check.ts
 const sql = `CREATE TABLE IF NOT EXISTS public.pg_changes (
@@ -41,14 +39,22 @@ CREATE TABLE IF NOT EXISTS public.replay_check (
             payload jsonb NOT NULL DEFAULT '{}'
           );
 INSERT INTO public.wallet (id, wallet_id) VALUES ('1', 'wallet_1') ON CONFLICT (id) DO NOTHING;
-ALTER TABLE public.dummy DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dummy ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pg_changes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.authorization ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.broadcast_changes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.wallet ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.replay_check ENABLE ROW LEVEL SECURITY;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.pg_changes;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.dummy;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'pg_changes' AND schemaname = 'public') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.pg_changes;
+  END IF;
+END $$;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'dummy' AND schemaname = 'public') THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.dummy;
+  END IF;
+END $$;
 DO $$ BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'authenticated receive on topic' AND tablename = 'messages' AND schemaname = 'realtime') THEN
               CREATE POLICY "authenticated receive on topic" ON "realtime"."messages" AS PERMISSIVE
@@ -64,6 +70,12 @@ DO $$ BEGIN
 DO $$ BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'allow authenticated users all access' AND tablename = 'pg_changes' AND schemaname = 'public') THEN
               CREATE POLICY "allow authenticated users all access" ON "public"."pg_changes" AS PERMISSIVE
+                FOR ALL TO authenticated USING (TRUE);
+            END IF;
+          END $$;
+DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'allow authenticated users all access' AND tablename = 'dummy' AND schemaname = 'public') THEN
+              CREATE POLICY "allow authenticated users all access" ON "public"."dummy" AS PERMISSIVE
                 FOR ALL TO authenticated USING (TRUE);
             END IF;
           END $$;
@@ -116,7 +128,7 @@ DO $$ BEGIN
       END $$
     ;
 
-INSERT INTO "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") VALUES ('00000000-0000-0000-0000-000000000000', '93c8bc43-c330-4702-aef2-4ba2c298950a', 'authenticated', 'authenticated', 'filipe@supabase.io', '$2a$10$WQ4tbkMVuS2OUmkX.LRC0uRwH6bU39CbI5bdHuLi82UXhUsjhrLP.', '2025-04-03 03:51:28.207805+00', null, '', '2025-04-03 03:50:59.085609+00', '', null, '', '', null, '2025-04-03 08:01:19.813327+00', '{"provider": "email", "providers": ["email"]}', '{"sub": "92c8bc43-c330-4702-aef2-4ba2c298950a", "email": "filipe@supabase.io", "email_verified": true, "phone_verified": false}', null, '2025-04-03 03:50:59.038087+00', '2025-04-03 22:09:10.979685+00', null, null, '', '', null, '', '0', null, '', null, 'false', null, 'false');`
+`
 
 const SqlSnippet = () => {
   const [highlighted, setHighlighted] = useState('')
@@ -134,6 +146,7 @@ const SqlSnippet = () => {
       {highlighted ? (
         <div
           className="max-h-80 overflow-hidden rounded-md text-xs [&_pre]:h-full [&_pre]:max-h-80 [&_pre]:overflow-y-auto [&_pre]:p-4 [&_pre]:break-words [&_pre]:whitespace-pre-wrap"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Shiki syntax-highlighted HTML, safe
           dangerouslySetInnerHTML={{ __html: highlighted }}
         />
       ) : (
@@ -145,14 +158,40 @@ const SqlSnippet = () => {
   )
 }
 
-function SettingsScreen({
-  onShowSetup,
-  showSetup,
-}: {
-  onShowSetup: () => void
-  showSetup: boolean
-}) {
-  const { supabaseUrl, supabaseKey, setSupabaseUrl, setSupabaseKey } = useEnv()
+export default function SettingsModal({ children }: { children?: ReactNode }) {
+  const {
+    supabaseUrl,
+    supabaseKey,
+    testUserEmail,
+    testUserPassword,
+    setSupabaseUrl,
+    setSupabaseKey,
+    setTestUserEmail,
+    setTestUserPassword,
+  } = useEnv()
+
+  const [localUrl, setLocalUrl] = useState(supabaseUrl)
+  const [localKey, setLocalKey] = useState(supabaseKey)
+  const [localEmail, setLocalEmail] = useState(testUserEmail)
+  const [localPassword, setLocalPassword] = useState(testUserPassword)
+
+  const commit = () => {
+    setSupabaseUrl(localUrl)
+    setSupabaseKey(localKey)
+    setTestUserEmail(localEmail)
+    setTestUserPassword(localPassword)
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      setLocalUrl(supabaseUrl)
+      setLocalKey(supabaseKey)
+      setLocalEmail(testUserEmail)
+      setLocalPassword(testUserPassword)
+    } else {
+      commit()
+    }
+  }
 
   const handlePaste = async () => {
     const text = await navigator.clipboard.readText()
@@ -165,102 +204,15 @@ function SettingsScreen({
       if (eqIndex === -1) continue
       const prefix = line.slice(0, eqIndex)
       const value = line.slice(eqIndex + 1)
-      if (prefix.includes('URL')) setSupabaseUrl(value)
-      if (prefix.includes('KEY')) setSupabaseKey(value)
+      if (prefix.includes('URL')) setLocalUrl(value)
+      if (prefix.includes('KEY')) setLocalKey(value)
+      if (prefix.includes('EMAIL')) setLocalEmail(value)
+      if (prefix.includes('PASSWORD')) setLocalPassword(value)
     }
   }
 
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>Realtime Settings</DialogTitle>
-        <DialogDescription className="sr-only">Configure Supabase connection</DialogDescription>
-      </DialogHeader>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="supabase-url">Supabase URL</Label>
-          <Input
-            id="supabase-url"
-            value={supabaseUrl}
-            onChange={(e) => setSupabaseUrl(e.target.value)}
-            placeholder="https://your-project.supabase.co"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="supabase-key">Supabase Key</Label>
-          <Input
-            id="supabase-key"
-            value={supabaseKey}
-            onChange={(e) => setSupabaseKey(e.target.value)}
-            placeholder="your-anon-key"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handlePaste}>
-            <ClipboardPaste className="mr-1 size-3.5" />
-            Paste keys
-          </Button>
-          {showSetup && (
-            <Button variant="ghost" size="sm" onClick={onShowSetup}>
-              How to setup
-            </Button>
-          )}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          <a
-            href="https://supabase.com/dashboard/project/_?showConnect=true&connectTab=frameworks"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground underline"
-          >
-            Get your keys at supabase.com
-          </a>
-        </p>
-      </div>
-    </>
-  )
-}
-
-function SetupScreen({ onBack }: { onBack: () => void }) {
-  return (
-    <>
-      <DialogHeader>
-        <DialogTitle>
-          <button
-            className="text-muted-foreground hover:text-foreground mr-2 inline-flex items-center"
-            onClick={onBack}
-          >
-            <ArrowLeft className="size-4" />
-          </button>
-          How to setup
-        </DialogTitle>
-        <DialogDescription className="sr-only">Setup instructions</DialogDescription>
-      </DialogHeader>
-      <div className="text-muted-foreground flex flex-col gap-3 text-sm">
-        <p>TODO: write instruction</p>
-        <SqlSnippet />
-      </div>
-    </>
-  )
-}
-
-export default function SettingsModal({
-  children,
-  showSetup,
-}: {
-  children?: ReactNode
-  showSetup?: boolean
-}) {
-  const [screen, setScreen] = useState<Screen>('settings')
-
-  const selectedScreen: Screen = !showSetup || screen === 'settings' ? 'settings' : 'setup'
-
-  return (
-    <Dialog
-      onOpenChange={(open) => {
-        if (!open) setScreen('settings')
-      }}
-    >
+    <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {children ?? (
           <Button variant="outline" size="icon-sm">
@@ -268,12 +220,155 @@ export default function SettingsModal({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className={selectedScreen === 'setup' ? 'sm:max-w-2xl' : undefined}>
-        {selectedScreen === 'settings' ? (
-          <SettingsScreen onShowSetup={() => setScreen('setup')} showSetup={showSetup ?? false} />
-        ) : (
-          <SetupScreen onBack={() => setScreen('settings')} />
-        )}
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Realtime Settings</DialogTitle>
+          <DialogDescription className="sr-only">Configure Supabase connection</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-6">
+          {/* Credentials */}
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="supabase-url">Supabase URL</Label>
+                <Input
+                  id="supabase-url"
+                  value={localUrl}
+                  onChange={(e) => setLocalUrl(e.target.value)}
+                  placeholder="https://your-project.supabase.co"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="supabase-key">Publishable Key</Label>
+                <Input
+                  id="supabase-key"
+                  value={localKey}
+                  onChange={(e) => setLocalKey(e.target.value)}
+                  placeholder="your-publishable-key"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="test-user-email">Test User Email</Label>
+                <Input
+                  id="test-user-email"
+                  type="email"
+                  value={localEmail}
+                  onChange={(e) => setLocalEmail(e.target.value)}
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="test-user-password">Test User Password</Label>
+                <Input
+                  id="test-user-password"
+                  type="password"
+                  value={localPassword}
+                  onChange={(e) => setLocalPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handlePaste}>
+                <ClipboardPaste className="mr-1 size-3.5" />
+                Paste keys
+              </Button>
+              <a
+                href="https://supabase.com/dashboard/project/_"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground text-xs underline"
+              >
+                Open Supabase dashboard
+              </a>
+            </div>
+          </div>
+
+          <div className="border-t" />
+
+          {/* Setup steps */}
+          <div className="flex flex-col gap-4 text-sm">
+            <p className="text-muted-foreground font-medium text-xs uppercase tracking-wide">
+              Setup steps
+            </p>
+            <ol className="text-muted-foreground flex flex-col gap-3">
+              {[
+                <>
+                  <span className="text-foreground font-medium">Create a Supabase project</span> at{' '}
+                  <a
+                    href="https://supabase.com/dashboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline"
+                  >
+                    supabase.com/dashboard
+                  </a>
+                  .
+                </>,
+                <>
+                  <span className="text-foreground font-medium">Copy your credentials</span> — get
+                  the Project URL from{' '}
+                  <a
+                    href="https://supabase.com/dashboard/project/_"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline"
+                  >
+                    Settings → General
+                  </a>
+                  , and the publishable key from{' '}
+                  <a
+                    href="https://supabase.com/dashboard/project/_/settings/api"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline"
+                  >
+                    Settings → API Keys
+                  </a>
+                  . Paste both in the fields above.
+                </>,
+                <>
+                  <span className="text-foreground font-medium">Create a test user</span> — go to{' '}
+                  <a
+                    href="https://supabase.com/dashboard/project/_/auth/users"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline"
+                  >
+                    Authentication → Users
+                  </a>
+                  , click <span className="font-mono text-xs">Add user → Create new user</span>,
+                  enter an email and password, and make sure{' '}
+                  <span className="font-mono text-xs">Auto Confirm User</span> is checked. Then
+                  enter those credentials in the fields above.
+                </>,
+                <>
+                  <span className="text-foreground font-medium">Run the SQL migration</span> below
+                  in the{' '}
+                  <a
+                    href="https://supabase.com/dashboard/project/_/sql/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground underline"
+                  >
+                    SQL Editor
+                  </a>{' '}
+                  to create the tables and policies the playground needs.
+                </>,
+              ].map((step, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: static ordered list, index is the correct key
+                <li key={i} className="flex gap-3">
+                  <span className="text-muted-foreground/50 w-4 shrink-0 font-mono text-xs">
+                    {i + 1}.
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+            <SqlSnippet />
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )

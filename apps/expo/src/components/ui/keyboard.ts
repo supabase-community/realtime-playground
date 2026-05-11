@@ -1,4 +1,4 @@
-import { Platform, type KeyboardAvoidingViewProps, type ScrollViewProps } from 'react-native'
+import { type KeyboardAvoidingViewProps, Platform, type ScrollViewProps } from 'react-native'
 
 export function getKeyboardAvoidingBehavior(): KeyboardAvoidingViewProps['behavior'] {
   if (Platform.OS === 'ios') {

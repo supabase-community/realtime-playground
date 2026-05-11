@@ -1,19 +1,19 @@
 import assert from 'assert'
 
 import { randomId, signInUser, waitFor, waitForChannel } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 
 export default {
   'broadcast changes': [
     {
       name: 'authenticated user receives INSERT broadcast change',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
 
         const id = randomId()
         const value = randomId()
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: broadcast payload shape varies by event
         let result: any = null
 
         const channel = supabase
@@ -35,15 +35,15 @@ export default {
     },
     {
       name: 'authenticated user receives UPDATE broadcast change',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
 
         const id = randomId()
         const originalValue = randomId()
         const updatedValue = randomId()
         await supabase.from('broadcast_changes').insert({ value: originalValue, id })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: broadcast payload shape varies by event
         let result: any = null
 
         const channel = supabase
@@ -66,14 +66,14 @@ export default {
     },
     {
       name: 'authenticated user receives DELETE broadcast change',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
 
         const id = randomId()
         const value = randomId()
         await supabase.from('broadcast_changes').insert({ value, id })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: broadcast payload shape varies by event
         let result: any = null
 
         const channel = supabase

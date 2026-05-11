@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import type React from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useControllableState } from '../utils'
 import { SelectContext } from './SelectContext'

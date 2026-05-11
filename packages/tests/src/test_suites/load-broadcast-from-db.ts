@@ -1,13 +1,13 @@
 import { measureThroughput, now, randomId, signInUser, waitForChannel } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 import { LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
 
 export default {
   'load-broadcast-from-db': [
     {
       name: 'broadcast from database throughput',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const sendTimes = new Map<string, number>()
         const latencies: number[] = []
 

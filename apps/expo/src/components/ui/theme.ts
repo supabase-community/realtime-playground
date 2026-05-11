@@ -79,6 +79,7 @@ export const typography = StyleSheet.create({
   },
 })
 
+// biome-ignore lint/style/noNonNullAssertion: Platform.select always resolves with a default key
 export const shadow = Platform.select({
   ios: {
     shadowColor: '#000000',

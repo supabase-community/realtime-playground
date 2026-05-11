@@ -55,6 +55,7 @@ export function BroadcastMessagesTable({ messages, onClear }: Props) {
               </TableHeader>
               <TableBody>
                 {messages.map((msg, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: messages are append-only with no stable ID
                   <TableRow key={idx}>
                     <TableCell className="text-muted-foreground align-top text-xs whitespace-nowrap tabular-nums">
                       {new Date(msg.timestamp).toLocaleTimeString()}

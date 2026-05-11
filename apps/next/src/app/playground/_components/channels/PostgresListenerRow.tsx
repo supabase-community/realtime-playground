@@ -1,14 +1,13 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
-import { Controller, useForm } from 'react-hook-form'
-
 import {
   createPostgresListenerDefaults,
-  postgresListenerSchema,
   type PostgresListenerValues,
+  postgresListenerSchema,
 } from '@realtime-playground/realtime-core'
+import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT } from '@supabase/supabase-js'
+import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

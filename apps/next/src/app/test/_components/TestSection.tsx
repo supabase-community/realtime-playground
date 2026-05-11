@@ -1,9 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Collapsible, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { Test } from '@realtime-playground/tests'
+import type { Test } from '@realtime-playground/tests'
 import { ChevronsUpDown } from 'lucide-react'
 import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react'
-import { RunButton, StatusBadge, type Status, type TestCaseHandle } from './helpers'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Collapsible, CollapsibleTrigger } from '@/components/ui/collapsible'
+import {
+  RunButton,
+  type Status,
+  StatusBadge,
+  type TestCaseHandle,
+  type TestCaseResult,
+} from './helpers'
 import TestCase from './TestCase'
 
 type TestSectionProps = {
@@ -65,6 +71,8 @@ const TestSection = forwardRef(({ name, tests, onStatusChange }: TestSectionProp
   useImperativeHandle(ref, () => ({
     handleRun: runAllTests,
     prepare,
+    getResult: (): TestCaseResult[] =>
+      testCasesRefs.current.flatMap((r) => (r ? [r.getResult()] : [])),
   }))
 
   return (

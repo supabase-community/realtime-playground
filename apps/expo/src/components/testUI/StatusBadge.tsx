@@ -1,4 +1,4 @@
-import { SymbolView, type SFSymbol } from 'expo-symbols'
+import { type SFSymbol, SymbolView } from 'expo-symbols'
 
 import { colors } from '../ui'
 import type { Status } from './shared'

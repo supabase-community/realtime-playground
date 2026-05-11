@@ -26,8 +26,8 @@ export default {
     },
     {
       name: 'user using private channel can connect if they have enough permissions',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
 
         const topic = `topic:${randomId()}`
         let connected = false

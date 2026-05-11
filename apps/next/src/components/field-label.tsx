@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label'
 import type { FieldError } from 'react-hook-form'
+import { Label } from '@/components/ui/label'
 
 type Props = {
   children: React.ReactNode

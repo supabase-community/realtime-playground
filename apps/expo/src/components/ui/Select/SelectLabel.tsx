@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { Text, type StyleProp, type TextStyle } from 'react-native'
+import type * as React from 'react'
+import { type StyleProp, Text, type TextStyle } from 'react-native'
 
 import { selectStyles } from './selectStyles'
 

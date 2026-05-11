@@ -1,0 +1,76 @@
+name: Update @supabase/supabase-js
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to update to (leave empty for latest)'
+        required: false
+        type: string
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday at 09:00 UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-supabase-js:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: update-supabase-js
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Resolve target version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=$(pnpm exec node -e "const r=require('./node_modules/@supabase/supabase-js/package.json');console.log(r.version)")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get latest published version
+        id: latest
+        run: |
+          echo "value=$(pnpm view @supabase/supabase-js version 2>/dev/null)" >> "$GITHUB_OUTPUT"
+
+      - name: Update package.json
+        env:
+          VERSION: ${{ steps.latest.outputs.value }}
+        run: |
+          node -e "
+            const fs = require('node:fs')
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+            pkg.dependencies['@supabase/supabase-js'] = process.env.VERSION
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
+          "
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'chore: update @supabase/supabase-js to ${{ steps.latest.outputs.value }}'
+          title: 'chore: update @supabase/supabase-js to ${{ steps.latest.outputs.value }}'
+          body: |
+            Updates `@supabase/supabase-js` to `${{ steps.latest.outputs.value }}`.
+
+            This PR was created automatically by the weekly update workflow.
+          branch: 'chore/update-supabase-js-${{ steps.latest.outputs.value }}'
+          base: ${{ github.event.repository.default_branch }}
+          delete-branch: true

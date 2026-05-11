@@ -1,14 +1,13 @@
+import { useEnv } from '@realtime-playground/realtime-core'
+import { runTest, type Test, type TestData } from '@realtime-playground/tests'
 import { SymbolView } from 'expo-symbols'
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
-import { useEnv } from '@realtime-playground/realtime-core'
-import { runTest, type Test, type TestData } from '@realtime-playground/tests'
-
 import { Button, colors, spacing, typography } from '../ui'
 import { StatusBadge } from './StatusBadge'
+import type { Status, TestRunnerHandle } from './shared'
 import { TestResults } from './TestResults'
-import { type Status, type TestRunnerHandle } from './shared'
 
 export const TestCaseRow = forwardRef<TestRunnerHandle, { test: Test }>(function TestCaseRow(
   { test },
@@ -16,7 +15,7 @@ export const TestCaseRow = forwardRef<TestRunnerHandle, { test: Test }>(function
 ) {
   const [status, setStatus] = useState<Status>(null)
   const [data, setData] = useState<TestData | undefined>()
-  const { supabaseKey, supabaseUrl } = useEnv()
+  const { supabaseKey, supabaseUrl, testUserEmail, testUserPassword } = useEnv()
 
   const prepare = useCallback(() => {
     setStatus('Running')
@@ -25,12 +24,12 @@ export const TestCaseRow = forwardRef<TestRunnerHandle, { test: Test }>(function
 
   const handleRun = useCallback(async () => {
     prepare()
-    const result = await runTest(test, supabaseUrl, supabaseKey)
+    const result = await runTest(test, supabaseUrl, supabaseKey, testUserEmail, testUserPassword)
     setData(result.data)
     const nextStatus = result.status === 'passed' ? 'Passed' : 'Failed'
     setStatus(nextStatus)
     return nextStatus
-  }, [prepare, supabaseKey, supabaseUrl, test])
+  }, [prepare, supabaseKey, supabaseUrl, testUserEmail, testUserPassword, test])
 
   useImperativeHandle(
     ref,

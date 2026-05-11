@@ -8,6 +8,7 @@ import {
   Card,
   Checkbox,
   Collapsible,
+  colors,
   Dialog,
   Form,
   Input,
@@ -18,7 +19,6 @@ import {
   Skeleton,
   Spinner,
   Textarea,
-  colors,
   toast,
   typography,
 } from '../components/ui'

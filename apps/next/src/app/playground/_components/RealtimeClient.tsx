@@ -1,12 +1,12 @@
 'use client'
 
-import { useClientCreated, type RealtimeLogger } from '@realtime-playground/realtime-core'
+import { type RealtimeLogger, useClientCreated } from '@realtime-playground/realtime-core'
 
 import { CopyButton } from '@/components/copy'
+import SettingsModal from '@/components/SettingsModal'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { PUBLIC_SUPABASE_KEY } from '@/lib/constants'
 import { RealtimeClientForm } from './forms'
-import SettingsModal from '@/components/SettingsModal'
 
 type Props = {
   logger: RealtimeLogger
@@ -47,7 +47,7 @@ export function RealtimeClient({ status, logger }: Props) {
       </CardContent>
       <CardFooter>
         <p className="text-muted-foreground flex items-center text-xs">
-          Default API KEY:
+          Publishable key:
           <CopyButton content={PUBLIC_SUPABASE_KEY} className="hover:text-foreground" />
         </p>
       </CardFooter>

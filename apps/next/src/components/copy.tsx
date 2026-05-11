@@ -21,7 +21,7 @@ export function CopyButton({ content, timeout, className }: Props) {
     }, timeout ?? 2000)
   }
   return (
-    <button onClick={handleCopy} className={`p-1 text-xs ${className}`}>
+    <button type="button" onClick={handleCopy} className={`p-1 text-xs ${className}`}>
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
     </button>
   )

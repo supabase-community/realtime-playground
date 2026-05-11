@@ -3,11 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "eslint": "yarn run -T eslint .",
-    "prettier": "yarn run -T prettier --check . --ignore-path ../../.prettierignore",
-    "format": "yarn prettier",
-    "ts": "yarn run -T tsc --project tsconfig.json --noEmit",
-    "lint": "yarn eslint && yarn format && yarn ts"
+    "lint": "biome check ."
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -21,5 +17,8 @@
   },
   "peerDependencies": {
     "react": "*"
+  },
+  "devDependencies": {
+    "@types/react": "*"
   }
 }

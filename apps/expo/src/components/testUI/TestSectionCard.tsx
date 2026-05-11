@@ -1,13 +1,12 @@
+import type { Test } from '@realtime-playground/tests'
 import { SymbolView } from 'expo-symbols'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
-import { type Test } from '@realtime-playground/tests'
-
 import { Button, Card, colors, spacing } from '../ui'
 import { StatusBadge } from './StatusBadge'
+import type { Status, TestRunnerHandle } from './shared'
 import { TestCaseRow } from './TestCaseRow'
-import { type Status, type TestRunnerHandle } from './shared'
 
 type TestSectionCardProps = {
   name: string

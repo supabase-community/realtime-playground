@@ -1,15 +1,15 @@
 import { SymbolView } from 'expo-symbols'
-import * as React from 'react'
+import type * as React from 'react'
 import {
-  AccessibilityRole,
+  type AccessibilityRole,
   KeyboardAvoidingView,
   Modal,
   Pressable,
   ScrollView,
-  StyleProp,
+  type StyleProp,
   StyleSheet,
   View,
-  ViewStyle,
+  type ViewStyle,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 

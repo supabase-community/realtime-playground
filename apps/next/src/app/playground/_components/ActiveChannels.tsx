@@ -1,10 +1,9 @@
 'use client'
 
-import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, RealtimeChannel } from '@supabase/supabase-js'
+import { useRealtimeStore } from '@realtime-playground/realtime-core'
+import type { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, RealtimeChannel } from '@supabase/supabase-js'
 import { Database, Radio, Users } from 'lucide-react'
 import { useState } from 'react'
-
-import { useRealtimeStore } from '@realtime-playground/realtime-core'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -186,7 +185,7 @@ const channelStateBadgeVariant = (
 type Icons = 'broadcast' | 'presence' | 'postgres'
 
 function ListenerCounter({ icon, count }: { icon: Icons; count: number }) {
-  if (count < 1) return <></>
+  if (count < 1) return null
 
   return (
     <span className="text-muted-foreground flex items-center gap-0.5 text-xs">

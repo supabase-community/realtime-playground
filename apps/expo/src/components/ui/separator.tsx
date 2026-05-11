@@ -1,5 +1,4 @@
-import * as React from 'react'
-import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native'
+import { type StyleProp, StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native'
 
 import { colors } from './theme'
 

@@ -43,8 +43,8 @@ export default {
     },
     {
       name: 'user is able to receive presence updates on private channels',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         await supabase.realtime.setAuth()
 
         const result: { key: string; newPresences: Presences }[] = []

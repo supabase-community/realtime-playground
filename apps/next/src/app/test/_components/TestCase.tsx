@@ -1,3 +1,7 @@
+import { useEnv } from '@realtime-playground/realtime-core'
+import { runTest, type Test, type TestData } from '@realtime-playground/tests'
+import { ChevronsUpDown } from 'lucide-react'
+import { type ForwardedRef, forwardRef, useCallback, useImperativeHandle, useState } from 'react'
 import { buttonVariants } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
@@ -9,11 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import { useEnv } from '@realtime-playground/realtime-core'
-import { runTest, Test, TestData } from '@realtime-playground/tests'
-import { ChevronsUpDown } from 'lucide-react'
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react'
-import { RunButton, Status, StatusBadge } from './helpers'
+import { RunButton, type Status, StatusBadge, type TestCaseHandle } from './helpers'
 
 type RenderTestDataProps = {
   data: TestData
@@ -84,63 +84,70 @@ type TestCaseProps = {
   onStatusChange?: (status: Status) => void
 }
 
-const TestCase = forwardRef(({ test, onStatusChange }: TestCaseProps, ref) => {
-  const [status, setStatus] = useState<Status>(null)
-  const [data, setData] = useState<TestData | undefined>()
-  const [open, setOpen] = useState(true)
-  const { supabaseUrl, supabaseKey } = useEnv()
+const TestCase = forwardRef(
+  ({ test, onStatusChange }: TestCaseProps, ref: ForwardedRef<TestCaseHandle>) => {
+    const [status, setStatus] = useState<Status>(null)
+    const [data, setData] = useState<TestData | undefined>()
+    const [open, setOpen] = useState(true)
+    const { supabaseUrl, supabaseKey, testUserEmail, testUserPassword } = useEnv()
 
-  const prepare = useCallback(() => {
-    setStatus('Running')
-    onStatusChange?.('Running')
-    setData(undefined)
-  }, [onStatusChange])
+    const prepare = useCallback(() => {
+      setStatus('Running')
+      onStatusChange?.('Running')
+      setData(undefined)
+    }, [onStatusChange])
 
-  const handleRun = useCallback(async () => {
-    const res = await runTest(test, supabaseUrl, supabaseKey)
-    setData(res.data)
-    const newStatus = res.status === 'passed' ? 'Passed' : 'Failed'
-    setStatus(newStatus)
-    onStatusChange?.(newStatus)
-  }, [test, supabaseUrl, supabaseKey, onStatusChange])
+    const handleRun = useCallback(async () => {
+      const res = await runTest(test, supabaseUrl, supabaseKey, testUserEmail, testUserPassword)
+      setData(res.data)
+      const newStatus = res.status === 'passed' ? 'Passed' : 'Failed'
+      setStatus(newStatus)
+      onStatusChange?.(newStatus)
+    }, [test, supabaseUrl, supabaseKey, testUserEmail, testUserPassword, onStatusChange])
 
-  const handleClick = useCallback(() => {
-    prepare()
-    handleRun()
-  }, [handleRun, prepare])
+    const handleClick = useCallback(async () => {
+      prepare()
+      await handleRun()
+    }, [handleRun, prepare])
 
-  useImperativeHandle(ref, () => ({
-    handleRun,
-    prepare,
-  }))
+    useImperativeHandle(ref, () => ({
+      handleRun,
+      prepare,
+      getResult: () => ({
+        name: test.name,
+        status,
+        error: status === 'Failed' && data?.type === 'normal' ? data.message : undefined,
+      }),
+    }))
 
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <div className="border-border flex flex-col gap-1 border-b py-2 last:border-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-foreground font-mono text-xs">{test.name}</span>
-          <div className="flex items-center gap-4">
-            {data && (
-              <CollapsibleTrigger
-                className={cn(
-                  'flex items-center gap-1 transition-opacity hover:opacity-70',
-                  buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
-                )}
-              >
-                <ChevronsUpDown className="text-muted-foreground size-3" />
-              </CollapsibleTrigger>
-            )}
-            <StatusBadge status={status} />
-            <RunButton status={status} onClick={handleClick} />
+    return (
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <div className="border-border flex flex-col gap-1 border-b py-2 last:border-0">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-foreground font-mono text-xs">{test.name}</span>
+            <div className="flex items-center gap-4">
+              {data && (
+                <CollapsibleTrigger
+                  className={cn(
+                    'flex items-center gap-1 transition-opacity hover:opacity-70',
+                    buttonVariants({ variant: 'ghost', size: 'icon-sm' }),
+                  )}
+                >
+                  <ChevronsUpDown className="text-muted-foreground size-3" />
+                </CollapsibleTrigger>
+              )}
+              <StatusBadge status={status} />
+              <RunButton status={status} onClick={handleClick} />
+            </div>
           </div>
+          <CollapsibleContent>
+            {data && <RenderTestData data={data} status={status} />}
+          </CollapsibleContent>
         </div>
-        <CollapsibleContent>
-          {data && <RenderTestData data={data} status={status} />}
-        </CollapsibleContent>
-      </div>
-    </Collapsible>
-  )
-})
+      </Collapsible>
+    )
+  },
+)
 TestCase.displayName = 'TestCase'
 
 export default TestCase

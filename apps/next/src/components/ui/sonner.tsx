@@ -1,5 +1,6 @@
 'use client'
 
+import { toast as rlCoreToast } from '@realtime-playground/realtime-core'
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -10,8 +11,6 @@ import {
 import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 import { Toaster as Sonner, type ToasterProps, toast } from 'sonner'
-
-import { toast as rlCoreToast } from '@realtime-playground/realtime-core'
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme()

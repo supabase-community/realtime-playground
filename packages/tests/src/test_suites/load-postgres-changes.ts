@@ -9,15 +9,15 @@ import {
   waitFor,
   waitForPostgresChannel,
 } from '../helpers'
-import { TestSuite } from '../types'
+import type { TestSuite } from '../types'
 import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
 
 export default {
   'load-postgres-changes': [
     {
       name: 'postgres changes system message latency',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
 
         const channel = supabase
           .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
@@ -38,8 +38,8 @@ export default {
     },
     {
       name: 'postgres changes INSERT throughput',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const sendTimes = new Map<number, number>()
         const latencies: number[] = []
 
@@ -70,8 +70,8 @@ export default {
     },
     {
       name: 'postgres changes UPDATE throughput',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const ids = await Promise.all(
           Array.from({ length: LOAD_MESSAGES }, () => executeInsert(supabase, 'pg_changes')),
         )
@@ -104,8 +104,8 @@ export default {
     },
     {
       name: 'postgres changes DELETE throughput',
-      body: async (supabase) => {
-        await signInUser(supabase, 'filipe@supabase.io', 'test_test')
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
         const ids = await Promise.all(
           Array.from({ length: LOAD_MESSAGES }, () => executeInsert(supabase, 'pg_changes')),
         )

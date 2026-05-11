@@ -1,4 +1,4 @@
-import { Text, type StyleProp, type TextStyle } from 'react-native'
+import { type StyleProp, Text, type TextStyle } from 'react-native'
 
 import { useSelectContext } from './SelectContext'
 import { selectStyles } from './selectStyles'

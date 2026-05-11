@@ -7,7 +7,10 @@ export type Test = {
     opts: {
       url: string
       key: string
+      email: string
+      password: string
     },
+    // biome-ignore lint/suspicious/noConfusingVoidType: void needed to accept async functions that don't return
   ) => Promise<TestData | void>
 }
 

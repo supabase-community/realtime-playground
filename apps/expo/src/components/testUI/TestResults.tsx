@@ -1,6 +1,5 @@
+import type { TestData } from '@realtime-playground/tests'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-
-import { type TestData } from '@realtime-playground/tests'
 
 import { colors, spacing } from '../ui'
 

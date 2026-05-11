@@ -1,4 +1,4 @@
-import { RealtimeChannel, RealtimeClient } from '@supabase/supabase-js'
+import { type RealtimeChannel, RealtimeClient } from '@supabase/supabase-js'
 import { create } from 'zustand'
 
 import { toast } from '../toaster'

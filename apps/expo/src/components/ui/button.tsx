@@ -1,9 +1,9 @@
-import * as React from 'react'
+import type * as React from 'react'
 import {
   Pressable,
-  StyleSheet,
   type PressableProps,
   type StyleProp,
+  StyleSheet,
   type TextStyle,
   type ViewStyle,
 } from 'react-native'

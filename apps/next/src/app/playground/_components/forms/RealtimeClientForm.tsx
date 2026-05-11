@@ -1,18 +1,17 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
-import { z } from 'zod'
-
 import {
   createRealtimeClientDefaults,
+  type RealtimeClientFormValues,
+  type RealtimeLogger,
   realtimeClientSchema,
-  RealtimeLogger,
   useEnv,
   useRealtimeStore,
   vsnSchema,
-  type RealtimeClientFormValues,
 } from '@realtime-playground/realtime-core'
+import { Controller, useForm } from 'react-hook-form'
+import type { z } from 'zod'
 
 import { FieldLabel } from '@/components/field-label'
 import { Button } from '@/components/ui/button'
@@ -38,7 +37,7 @@ export function RealtimeClientForm({ disabled, status, logger }: Props) {
   const { supabaseUrl, supabaseKey } = useEnv()
 
   const onSubmit = (options: RealtimeClientFormValues) => {
-    useRealtimeStore.getState().create(supabaseUrl + '/realtime/v1', {
+    useRealtimeStore.getState().create(`${supabaseUrl}/realtime/v1`, {
       ...realtimeOptions(options, supabaseKey),
       logger,
     })

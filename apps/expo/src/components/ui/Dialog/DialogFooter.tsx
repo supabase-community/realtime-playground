@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native'
+import type * as React from 'react'
+import { type StyleProp, StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native'
 
 import { Button } from '../button'
 import { DialogClose } from './DialogClose'
