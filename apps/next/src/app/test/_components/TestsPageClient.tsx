@@ -2,7 +2,8 @@
 
 import { useEnv } from '@realtime-playground/realtime-core'
 import { testCases } from '@realtime-playground/tests'
-import { useCallback, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import SettingsModal from '@/components/SettingsModal'
 import { RunButton, type Status, StatusBadge, type TestCaseHandle } from './helpers'
 import TestSection from './TestSection'
@@ -14,6 +15,9 @@ export default function TestsPageClient() {
   const [ciResult, setCiResult] = useState<CiResult | null>(null)
   const { supabaseUrl, supabaseKey } = useEnv()
   const configured = Boolean(supabaseUrl && supabaseKey)
+  const params = useSearchParams()
+  const autorun = params.get('autorun') === 'true'
+  const hasAutoRun = useRef(false)
 
   const testSuitesRefs = useRef<(TestCaseHandle | null)[]>([])
   const sectionCount = Object.keys(testCases).length
@@ -60,6 +64,13 @@ export default function TestsPageClient() {
 
     setCiResult(failed.length === 0 ? { status: 200 } : { status: 400, failed })
   }, [prepare, computePageStatus])
+
+  useEffect(() => {
+    if (autorun && configured && !hasAutoRun.current) {
+      hasAutoRun.current = true
+      handleClick()
+    }
+  }, [autorun, configured, handleClick])
 
   return (
     <div className="mx-auto flex h-full max-w-7xl flex-col overflow-y-hidden p-2 font-mono text-sm">
