@@ -20,7 +20,7 @@ export default {
 
         assert.equal(
           errMessage,
-          `"Unauthorized: You do not have permissions to read from this Channel topic: ${topic}"`,
+          `Unauthorized: You do not have permissions to read from this Channel topic: ${topic}`,
         )
       },
     },
