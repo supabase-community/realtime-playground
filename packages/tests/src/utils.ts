@@ -25,11 +25,13 @@ export const runTest = async (
       data,
     }
   } catch (error) {
+    const err = error instanceof Error ? error : new Error(String(error))
     result = {
       status: 'failed',
       data: {
         type: 'normal',
-        message: (error as Error)?.message,
+        message: err.message,
+        stack: err.stack,
       },
     }
   }

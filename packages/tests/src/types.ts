@@ -27,6 +27,7 @@ export type TestData =
   | {
       type: 'normal'
       message: string
+      stack?: string
     }
   | {
       type: 'load'

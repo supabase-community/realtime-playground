@@ -46,14 +46,25 @@ const MetricValue = ({ value, unit }: { value: number; unit: string }) => (
 const RenderTestData = ({ data, status }: RenderTestDataProps) => {
   if (data.type === 'normal')
     return (
-      <span
-        className={cn(
-          'mt-1 rounded px-2 py-1 font-mono text-xs break-all',
-          status === 'Passed' ? 'text-primary bg-primary/10' : 'text-destructive bg-destructive/10',
+      <div className="mt-1 flex flex-col gap-1">
+        <span
+          className={cn(
+            'rounded px-2 py-1 font-mono text-xs break-all',
+            status === 'Passed'
+              ? 'text-primary bg-primary/10'
+              : 'text-destructive bg-destructive/10',
+          )}
+        >
+          {data.message}
+        </span>
+        {data.stack && status !== 'Passed' && (
+          <pre className="text-muted-foreground bg-muted max-h-64 overflow-y-auto rounded px-2 py-1 font-mono text-xs whitespace-pre-wrap break-words">
+            {data.stack.startsWith(data.message)
+              ? data.stack.slice(data.message.length).trimStart()
+              : data.stack}
+          </pre>
         )}
-      >
-        {data.message}
-      </span>
+      </div>
     )
   if (data.type === 'load')
     return (
@@ -117,6 +128,7 @@ const TestCase = forwardRef(
         name: test.name,
         status,
         error: status === 'Failed' && data?.type === 'normal' ? data.message : undefined,
+        stack: status === 'Failed' && data?.type === 'normal' ? data.stack : undefined,
       }),
     }))
 
