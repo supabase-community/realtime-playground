@@ -5,4 +5,4 @@ onlyBuiltDependencies:
   - msw
   - sharp
   - unrs-resolver
-minimumReleaseAge: 1440
+minimumReleaseAge: 4320
