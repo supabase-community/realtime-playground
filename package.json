@@ -8,7 +8,7 @@
     "android": "pnpm --filter @realtime-playground/expo run android",
     "dev": "concurrently \"pnpm web\" \"pnpm ios\"",
     "check": "biome check --write .",
-    "lint": "biome check .",
+    "lint": "biome check . && pnpm typecheck",
     "typecheck": "pnpm --filter '@realtime-playground/next' run typecheck"
   },
   "dependencies": {
