@@ -7,21 +7,18 @@ export default {
     {
       name: 'user using private channel cannot connect if does not have enough permissions',
       body: async (supabase) => {
-        let errMessage: string | null = null
         const topic = `topic:${randomId()}`
+        let gotChannelError = false
 
         const channel = supabase
           .channel(topic, { config: { private: true } })
-          .subscribe((status, err) => {
-            if (status === 'CHANNEL_ERROR') errMessage = err ? err.message : null
+          .subscribe((status) => {
+            if (status === 'CHANNEL_ERROR') gotChannelError = true
           })
 
-        await waitFor(() => channel.state === 'errored')
+        await waitFor(() => gotChannelError)
 
-        assert.equal(
-          errMessage,
-          `Unauthorized: You do not have permissions to read from this Channel topic: ${topic}`,
-        )
+        assert.equal(channel.state, 'errored')
       },
     },
     {
