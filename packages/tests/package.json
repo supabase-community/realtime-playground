@@ -11,8 +11,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@supabase/realtime-js": "^2.105.4",
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/realtime-js": "^2.107.0",
+    "@supabase/supabase-js": "^2.107.0",
     "assert": "^2.1.0",
     "zustand": "*"
   },
