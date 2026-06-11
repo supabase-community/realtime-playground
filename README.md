@@ -24,15 +24,15 @@ Sandbox playground for manual and E2E tests run in browser and on mobile.
 ## Installation
 
 1. Copy `example.env` to `.env`
-2. Run `yarn install`
+2. Run `pnpm install`
 
 3. Run web, mobile or both apps
 
 ```bash
-yarn web # runs web dev client
-yarn ios # runs ios mobile client
-yarn android # runs android mobile client
-yarn dev # runs both web and mobile servers and starts ios simulator
+pnpm web # runs web dev client
+pnpm ios # runs ios mobile client
+pnpm android # runs android mobile client
+pnpm dev # runs both web and mobile servers and starts ios simulator
 ```
 
 Both `apps/next` and `apps/expo` load environment variables from the repo root `.env`.
