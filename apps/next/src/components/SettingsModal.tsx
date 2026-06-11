@@ -1,13 +1,14 @@
 'use client'
 
 import { useEnv } from '@realtime-playground/realtime-core'
-import { ClipboardPaste, Cog } from 'lucide-react'
+import { Check, ClipboardPaste, Cog } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { codeToHtml } from 'shiki'
 import { CopyButton } from '@/components/copy'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -282,6 +283,12 @@ export default function SettingsModal({ children }: { children?: ReactNode }) {
               >
                 Open Supabase dashboard
               </a>
+              <DialogClose asChild>
+                <Button size="sm" className="ml-auto">
+                  <Check className="mr-1 size-3.5" />
+                  Save & close
+                </Button>
+              </DialogClose>
             </div>
           </div>
 
