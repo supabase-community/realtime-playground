@@ -4,6 +4,7 @@ import type {
   REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
   RealtimeChannel,
   RealtimePostgresChangesPayload,
+  RealtimePostgresFilterBuilder,
 } from '@supabase/supabase-js'
 import { useCallback, useState } from 'react'
 
@@ -24,8 +25,10 @@ export function usePostgresChanges() {
       event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
       schema: string,
       table?: string,
+      filter?: string | RealtimePostgresFilterBuilder,
+      select?: string[],
     ) => {
-      channel.on('postgres_changes', { event, schema, table }, (payload) => {
+      channel.on('postgres_changes', { event, schema, table, filter, select }, (payload) => {
         setChanges((prev) => [
           ...prev,
           {

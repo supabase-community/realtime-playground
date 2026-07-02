@@ -87,10 +87,10 @@ export default function Playground() {
   )
 
   const addPostgresChangesListener = useCallback<ListenerCallbacks['addPostgresChangesListener']>(
-    (name, schema, event, table) => {
+    (name, schema, event, table, filter, select) => {
       const ch = useRealtimeStore.getState().channels.get(name)
       if (!ch) return
-      registerPostgresListener(ch, name, event, schema, table)
+      registerPostgresListener(ch, name, event, schema, table, filter, select)
       useRealtimeStore.getState().syncChannels()
     },
     [registerPostgresListener],
