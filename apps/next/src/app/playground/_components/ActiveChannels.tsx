@@ -1,7 +1,11 @@
 'use client'
 
-import { useRealtimeStore } from '@realtime-playground/realtime-core'
-import type { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, RealtimeChannel } from '@supabase/supabase-js'
+import { buildPostgresFilter, useRealtimeStore } from '@realtime-playground/realtime-core'
+import type {
+  REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
+  RealtimeChannel,
+  RealtimePostgresFilterBuilder,
+} from '@supabase/supabase-js'
 import { Database, Radio, Users } from 'lucide-react'
 import { useState } from 'react'
 
@@ -25,6 +29,8 @@ export type ListenerCallbacks = {
     schema: string,
     event: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
     table?: string,
+    filter?: string | RealtimePostgresFilterBuilder,
+    select?: string[],
   ) => void
 }
 
@@ -112,8 +118,16 @@ function ChannelCard({ channel, name, listenerCallbacks }: ChannelCardProps) {
           }}
         />
         <PostgresListenerRow
-          onAdd={({ schema, table, event }) => {
-            listenerCallbacks.addPostgresChangesListener(name, schema, event, table)
+          onAdd={({ schema, table, event, filters, select }) => {
+            const filter = buildPostgresFilter(filters)
+            listenerCallbacks.addPostgresChangesListener(
+              name,
+              schema,
+              event,
+              table,
+              filter,
+              select.length > 0 ? select : undefined,
+            )
             setListenerCounts((prev) => ({ ...prev, postgres: prev.postgres + 1 }))
           }}
         />

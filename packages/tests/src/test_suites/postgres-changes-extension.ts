@@ -1,7 +1,8 @@
-import type {
-  RealtimePostgresDeletePayload,
-  RealtimePostgresInsertPayload,
-  RealtimePostgresUpdatePayload,
+import {
+  postgresChangesFilter,
+  type RealtimePostgresDeletePayload,
+  type RealtimePostgresInsertPayload,
+  type RealtimePostgresUpdatePayload,
 } from '@supabase/supabase-js'
 import assert from 'assert'
 import {
@@ -213,6 +214,164 @@ export default {
         assert.strictEqual(updateResult!.eventType, 'UPDATE')
         // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
         assert.strictEqual(deleteResult!.eventType, 'DELETE')
+      },
+    },
+    {
+      name: 'user receives INSERT matching a postgresChangesFilter() builder (eq)',
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
+        await supabase.realtime.setAuth()
+
+        let result: RealtimePostgresInsertPayload<Payload> | null = null
+        const value = randomId()
+
+        const channel = supabase
+          .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'pg_changes',
+              filter: postgresChangesFilter().eq('value', value),
+            },
+            (payload) => {
+              if (payload.new.value === value) result = payload
+            },
+          )
+          .subscribe()
+
+        await waitForPostgresChannel(channel)
+
+        await supabase.from('pg_changes').insert([{ value }])
+        await executeInsert(supabase, 'pg_changes')
+
+        await waitFor(() => result !== null)
+
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.equal(result!.eventType, 'INSERT')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.equal(result!.new.value, value)
+      },
+    },
+    {
+      name: 'user receives INSERT matching a composite AND filter (value + id)',
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
+        await supabase.realtime.setAuth()
+
+        let result: RealtimePostgresInsertPayload<Payload> | null = null
+        const value = randomId()
+        const previousId = await executeInsert(supabase, 'pg_changes')
+
+        const channel = supabase
+          .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'pg_changes',
+              // value = <value>  AND  id > previousId
+              filter: postgresChangesFilter().eq('value', value).gt('id', previousId),
+            },
+            (payload) => {
+              if (payload.new.value === value) result = payload
+            },
+          )
+          .subscribe()
+
+        await waitForPostgresChannel(channel)
+
+        await supabase.from('pg_changes').insert([{ value }])
+
+        await waitFor(() => result !== null)
+
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.equal(result!.eventType, 'INSERT')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.equal(result!.new.value, value)
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        const receivedId = Number(result!.new.id)
+        assert.ok(receivedId > previousId, 'id should satisfy the id > previousId clause')
+      },
+    },
+    {
+      name: 'user receives INSERT matching a negated filter (not eq)',
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
+        await supabase.realtime.setAuth()
+
+        const excluded = randomId()
+        const delivered = randomId()
+        const seen: unknown[] = []
+
+        const channel = supabase
+          .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'pg_changes',
+              filter: postgresChangesFilter().not('value', 'eq', excluded),
+            },
+            (payload) => {
+              if (payload.new.value === excluded || payload.new.value === delivered)
+                seen.push(payload.new.value)
+            },
+          )
+          .subscribe()
+
+        await waitForPostgresChannel(channel)
+
+        // Insert the excluded row first; only the delivered row must reach us.
+        await supabase.from('pg_changes').insert([{ value: excluded }])
+        await supabase.from('pg_changes').insert([{ value: delivered }])
+
+        await waitFor(() => seen.includes(delivered))
+
+        assert.ok(seen.includes(delivered), 'delivered row should pass the not filter')
+        assert.ok(!seen.includes(excluded), 'excluded row should be filtered out')
+      },
+    },
+    {
+      name: 'user receives only selected columns via select',
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
+        await supabase.realtime.setAuth()
+
+        let result: RealtimePostgresInsertPayload<Payload> | null = null
+        const value = randomId()
+
+        const channel = supabase
+          .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'pg_changes',
+              // Match our row by value, but only ask for `id` back.
+              filter: postgresChangesFilter().eq('value', value),
+              select: ['id'],
+            },
+            (payload) => {
+              result = payload
+            },
+          )
+          .subscribe()
+
+        await waitForPostgresChannel(channel)
+
+        await supabase.from('pg_changes').insert([{ value }])
+
+        await waitFor(() => result !== null)
+
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.equal(typeof result!.new.id, 'number')
+        // biome-ignore lint/style/noNonNullAssertion: waitFor guarantees non-null
+        assert.ok(!('value' in result!.new), 'value should be excluded by select')
       },
     },
   ],
