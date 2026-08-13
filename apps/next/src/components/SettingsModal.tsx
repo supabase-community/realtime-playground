@@ -37,8 +37,10 @@ CREATE TABLE IF NOT EXISTS public.replay_check (
             id text PRIMARY KEY,
             topic text NOT NULL,
             event text NOT NULL,
-            payload jsonb NOT NULL DEFAULT '{}'
+            payload jsonb NOT NULL DEFAULT '{}',
+            binary_payload bytea
           );
+ALTER TABLE public.replay_check ADD COLUMN IF NOT EXISTS binary_payload bytea;
 INSERT INTO public.wallet (id, wallet_id) VALUES ('1', 'wallet_1') ON CONFLICT (id) DO NOTHING;
 ALTER TABLE public.dummy ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.pg_changes ENABLE ROW LEVEL SECURITY;
@@ -114,7 +116,11 @@ DO $$ BEGIN
 
       CREATE OR REPLACE FUNCTION replay_check_trigger() RETURNS TRIGGER AS $$
       BEGIN
-        PERFORM realtime.send(NEW.payload, NEW.event, NEW.topic, true);
+        IF NEW.binary_payload IS NULL THEN
+          PERFORM realtime.send(NEW.payload, NEW.event, NEW.topic, true);
+        ELSE
+          PERFORM realtime.send_binary(NEW.binary_payload, NEW.event, NEW.topic, true);
+        END IF;
         RETURN NULL;
       END;
       $$ LANGUAGE plpgsql
