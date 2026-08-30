@@ -10,7 +10,13 @@ import {
   waitForPostgresChannel,
 } from '../helpers'
 import type { TestSuite } from '../types'
-import { BROADCAST_CONFIG, LOAD_DELIVERY_SLO, LOAD_MESSAGES } from './const'
+import {
+  BROADCAST_CONFIG,
+  FANOUT_DELIVERY_SLO,
+  FANOUT_SUBSCRIBERS,
+  LOAD_DELIVERY_SLO,
+  LOAD_MESSAGES,
+} from './const'
 
 export default {
   'load-postgres-changes': [
@@ -134,6 +140,34 @@ export default {
         )
 
         return measureThroughput(latencies, LOAD_MESSAGES, LOAD_DELIVERY_SLO)
+      },
+    },
+    {
+      name: 'postgres changes fan-out to many concurrent filtered subscriptions on one table',
+      body: async (supabase, { email, password }) => {
+        await signInUser(supabase, email, password)
+        const value = randomId()
+        const latencies: number[] = []
+        let sentAt = 0
+
+        const channels = Array.from({ length: FANOUT_SUBSCRIBERS }, () =>
+          supabase
+            .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
+            .on(
+              'postgres_changes',
+              { event: 'INSERT', schema: 'public', table: 'pg_changes', filter: `value=eq.${value}` },
+              () => latencies.push(now() - sentAt),
+            )
+            .subscribe(),
+        )
+
+        await Promise.all(channels.map((channel) => waitForPostgresChannel(channel)))
+
+        sentAt = now()
+        const { error } = await supabase.from('pg_changes').insert([{ value }])
+        if (error) throw new Error(`Error inserting data: ${error.message}`)
+
+        return measureThroughput(latencies, FANOUT_SUBSCRIBERS, FANOUT_DELIVERY_SLO)
       },
     },
   ],
