@@ -71,6 +71,18 @@ DO $$ BEGIN
             END IF;
           END $$;
 DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'authenticated receive on no-persist topic' AND tablename = 'messages' AND schemaname = 'realtime') THEN
+              CREATE POLICY "authenticated receive on no-persist topic" ON "realtime"."messages" AS PERMISSIVE
+                FOR SELECT TO authenticated USING (realtime.topic() like 'no-persist:%');
+            END IF;
+          END $$;
+DO $$ BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'authenticated broadcast without persistence on no-persist topic' AND tablename = 'messages' AND schemaname = 'realtime') THEN
+              CREATE POLICY "authenticated broadcast without persistence on no-persist topic" ON "realtime"."messages" AS PERMISSIVE
+                FOR INSERT TO authenticated WITH CHECK (realtime.topic() like 'no-persist:%' and realtime.messages.extension = 'broadcast');
+            END IF;
+          END $$;
+DO $$ BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'allow authenticated users all access' AND tablename = 'pg_changes' AND schemaname = 'public') THEN
               CREATE POLICY "allow authenticated users all access" ON "public"."pg_changes" AS PERMISSIVE
                 FOR ALL TO authenticated USING (TRUE);
