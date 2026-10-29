@@ -2,6 +2,7 @@ import type { TestSuite } from '../types'
 import authorizationCheck from './authorization-check'
 import broadcastChanges from './broadcast-changes'
 import broadcastExtension from './broadcast-extension'
+import broadcastPersistence from './broadcast-persistence'
 import broadcastReplay from './broadcast-replay'
 import connection from './connection'
 import defaultSettings from './default-settings'
@@ -27,4 +28,5 @@ export const testCases: TestSuite = {
   ...broadcastChanges,
   ...postgresChangesExtension,
   ...broadcastReplay,
+  ...broadcastPersistence,
 }
