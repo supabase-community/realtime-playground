@@ -75,6 +75,9 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
         with:
+          # main requires verified signatures; this commits through the API as
+          # github-actions[bot] so GitHub signs it.
+          sign-commits: true
           commit-message: 'chore: update @supabase/supabase-js to ${{ steps.version.outputs.value }}'
           title: 'chore: update @supabase/supabase-js to ${{ steps.version.outputs.value }}'
           body: |
