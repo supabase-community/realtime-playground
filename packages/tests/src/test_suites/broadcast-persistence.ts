@@ -144,27 +144,23 @@ export default {
 
         for (const ttl of [0, MAX_TTL_SECONDS + 1, 1.5]) {
           const status = await send(supabase, `topic:${randomId()}`, randomId(), { ttl })
-          assert.strictEqual(status, 'error', `ttl ${ttl}: send returned ${status}`)
+          assert.strictEqual(
+            status,
+            'persistence_invalid_ttl',
+            `ttl ${ttl}: send returned ${status}`,
+          )
         }
       },
     },
     {
-      name: 'persist on a public channel is not stored',
+      name: 'persist on a public channel is rejected',
       body: async (supabase, { email, password }) => {
         await signInUser(supabase, email, password)
-        const publicEvent = randomId()
-        const persisted = randomId()
-        const topic = `topic:${randomId()}`
-        const since = Date.now() - 1000
 
-        await sendPersisted(supabase, topic, publicEvent, true, { isPrivate: false })
-        await sendPersisted(supabase, topic, persisted, true)
-        const received = await waitForReplay(supabase, topic, since, persisted)
-
-        assert.deepStrictEqual(
-          received.map((m) => m.event),
-          [persisted],
-        )
+        const status = await send(supabase, `topic:${randomId()}`, randomId(), true, {
+          isPrivate: false,
+        })
+        assert.strictEqual(status, 'error', `send returned ${status}`)
       },
     },
     {

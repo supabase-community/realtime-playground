@@ -12,7 +12,7 @@
     "typecheck": "pnpm --filter '@realtime-playground/next' run typecheck"
   },
   "dependencies": {
-    "@supabase/supabase-js": "https://pkg.pr.new/@supabase/supabase-js@a1bd8ca",
+    "@supabase/supabase-js": "2.119.0-canary.5",
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },

@@ -6,3 +6,5 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
 minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - "@supabase/*"
