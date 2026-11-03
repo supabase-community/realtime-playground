@@ -22,7 +22,10 @@ export default {
           .subscribe()
 
         await waitForChannel(channel)
-        await supabase.from('broadcast_changes').insert({ value, id })
+        const { error } = await supabase
+          .from('broadcast_changes')
+          .insert({ value, id, topic: 'topic:test' })
+        if (error) throw new Error(`Error inserting data: ${error.message}`)
         await waitFor(() => result)
 
         assert.strictEqual(result.payload.record.id, id)
@@ -41,7 +44,10 @@ export default {
         const id = randomId()
         const originalValue = randomId()
         const updatedValue = randomId()
-        await supabase.from('broadcast_changes').insert({ value: originalValue, id })
+        const { error } = await supabase
+          .from('broadcast_changes')
+          .insert({ value: originalValue, id, topic: 'topic:test' })
+        if (error) throw new Error(`Error inserting data: ${error.message}`)
 
         // biome-ignore lint/suspicious/noExplicitAny: broadcast payload shape varies by event
         let result: any = null
@@ -71,7 +77,10 @@ export default {
 
         const id = randomId()
         const value = randomId()
-        await supabase.from('broadcast_changes').insert({ value, id })
+        const { error } = await supabase
+          .from('broadcast_changes')
+          .insert({ value, id, topic: 'topic:test' })
+        if (error) throw new Error(`Error inserting data: ${error.message}`)
 
         // biome-ignore lint/suspicious/noExplicitAny: broadcast payload shape varies by event
         let result: any = null

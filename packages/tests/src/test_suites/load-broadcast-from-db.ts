@@ -25,7 +25,10 @@ export default {
           Array.from({ length: LOAD_MESSAGES }, async () => {
             const id = randomId()
             sendTimes.set(id, now())
-            await supabase.from('broadcast_changes').insert({ id, value: randomId() })
+            const { error } = await supabase
+              .from('broadcast_changes')
+              .insert({ id, value: randomId(), topic: 'topic:test' })
+            if (error) throw new Error(`Error inserting data: ${error.message}`)
           }),
         )
 
