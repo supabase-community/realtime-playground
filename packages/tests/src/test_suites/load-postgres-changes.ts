@@ -155,7 +155,12 @@ export default {
             .channel(`topic:${randomId()}`, BROADCAST_CONFIG)
             .on(
               'postgres_changes',
-              { event: 'INSERT', schema: 'public', table: 'pg_changes', filter: `value=eq.${value}` },
+              {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'pg_changes',
+                filter: `value=eq.${value}`,
+              },
               () => latencies.push(now() - sentAt),
             )
             .subscribe(),
