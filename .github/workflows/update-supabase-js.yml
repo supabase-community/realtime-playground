@@ -37,27 +37,37 @@ jobs:
 
       - name: Resolve target version
         id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "value=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "value=$(pnpm exec node -e "const r=require('./node_modules/@supabase/supabase-js/package.json');console.log(r.version)")" >> "$GITHUB_OUTPUT"
+            echo "value=$(pnpm view @supabase/supabase-js version 2>/dev/null)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Get latest published version
-        id: latest
-        run: |
-          echo "value=$(pnpm view @supabase/supabase-js version 2>/dev/null)" >> "$GITHUB_OUTPUT"
-
-      - name: Update package.json
+      # supabase-js and realtime-js share a version. Pin every workspace to the
+      # same exact version so the lockfile holds a single realtime-js copy;
+      # two copies break typecheck with mismatched RealtimeChannel types.
+      - name: Update package.json files
         env:
-          VERSION: ${{ steps.latest.outputs.value }}
+          VERSION: ${{ steps.version.outputs.value }}
         run: |
           node -e "
             const fs = require('node:fs')
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
-            pkg.dependencies['@supabase/supabase-js'] = process.env.VERSION
-            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')
+            const pins = {
+              'package.json': ['@supabase/supabase-js'],
+              'packages/realtime-core/package.json': ['@supabase/supabase-js'],
+              'packages/tests/package.json': ['@supabase/supabase-js', '@supabase/realtime-js'],
+            }
+            for (const [file, deps] of Object.entries(pins)) {
+              const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
+              for (const dep of deps) {
+                if (!pkg.dependencies?.[dep]) throw new Error(dep + ' missing from ' + file)
+                pkg.dependencies[dep] = process.env.VERSION
+              }
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n')
+            }
           "
 
       - run: pnpm install --no-frozen-lockfile
@@ -65,12 +75,15 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: 'chore: update @supabase/supabase-js to ${{ steps.latest.outputs.value }}'
-          title: 'chore: update @supabase/supabase-js to ${{ steps.latest.outputs.value }}'
+          # main requires verified signatures; this commits through the API as
+          # github-actions[bot] so GitHub signs it.
+          sign-commits: true
+          commit-message: 'chore: update @supabase/supabase-js to ${{ steps.version.outputs.value }}'
+          title: 'chore: update @supabase/supabase-js to ${{ steps.version.outputs.value }}'
           body: |
-            Updates `@supabase/supabase-js` to `${{ steps.latest.outputs.value }}`.
+            Updates `@supabase/supabase-js` to `${{ steps.version.outputs.value }}`.
 
             This PR was created automatically by the weekly update workflow.
-          branch: 'chore/update-supabase-js-${{ steps.latest.outputs.value }}'
+          branch: 'chore/update-supabase-js-${{ steps.version.outputs.value }}'
           base: ${{ github.event.repository.default_branch }}
           delete-branch: true

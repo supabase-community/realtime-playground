@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@react-navigation/elements": "^2.9.17",
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^7.29.6",
     "@types/babel__core": "^7",
     "@types/react": "~19.2.10",
     "@types/react-dom": "^19",

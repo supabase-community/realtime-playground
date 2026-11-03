@@ -3,6 +3,15 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+const projectRef = (url: string) => {
+  try {
+    const { hostname } = new URL(url)
+    return hostname.includes('.supabase.') ? hostname.split('.')[0] : hostname
+  } catch {
+    return url
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const url = searchParams.get('url')
@@ -34,5 +43,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ status: 200 })
   }
 
-  return NextResponse.json({ status: 400, failed }, { status: 400 })
+  return NextResponse.json({ status: 400, projectRef: projectRef(url), failed }, { status: 400 })
 }
