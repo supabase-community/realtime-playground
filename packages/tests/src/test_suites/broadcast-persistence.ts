@@ -184,7 +184,7 @@ export default {
           payload: { message: randomId() },
           persist: true,
         })
-        assert.strictEqual(status, 'ok', `send returned ${status}`)
+        assert.strictEqual(status, 'persistence_unauthorized', `send returned ${status}`)
         await waitFor(() => result)
         await supabase.removeChannel(receiver)
 
